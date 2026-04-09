@@ -90,6 +90,7 @@ jobs:
           name: docs
           context: ${{ github.workspace }}/docs
           image: "${{ env.REGISTRY }}/docs:${{ env.TAG }}"
+          timeout: 600
 
       - name: Build garbage-collection image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
@@ -129,6 +130,7 @@ jobs:
           name: rag-ingest
           context: ${{ github.workspace }}/rag-ingest
           image: "${{ env.REGISTRY }}/rag-ingest:${{ env.TAG }}"
+          timeout: 600
 
       - name: Build video image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
