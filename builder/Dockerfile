@@ -2,13 +2,14 @@
 # docker build -f builder/Dockerfile .
 FROM golang:1.22-alpine AS builder
 
-WORKDIR /workspace/builder
+WORKDIR /workspace
 
-COPY builder/go.mod builder/go.sum ./
+COPY shared/go.mod shared/go.sum ./shared/
+COPY builder/go.mod builder/go.sum ./builder/
+WORKDIR /workspace/builder
 RUN GOWORK=off go mod download
 
 WORKDIR /workspace
-
 COPY shared/ ./shared/
 COPY builder/ ./builder/
 
