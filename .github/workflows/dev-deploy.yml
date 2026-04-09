@@ -99,6 +99,7 @@ jobs:
           context: ${{ github.workspace }}
           dockerfile: garbage-collection/Dockerfile
           image: "${{ env.REGISTRY }}/garbage-collection:${{ env.TAG }}"
+          timeout: 600
 
       - name: Build labs image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main

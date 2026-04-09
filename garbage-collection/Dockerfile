@@ -2,6 +2,11 @@
 # docker build -f garbage-collection/Dockerfile .
 FROM golang:1.22-alpine AS builder
 
+WORKDIR /workspace/garbage-collection
+
+COPY garbage-collection/go.mod garbage-collection/go.sum ./
+RUN GOWORK=off go mod download
+
 WORKDIR /workspace
 
 COPY shared/ ./shared/
