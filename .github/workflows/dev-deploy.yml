@@ -67,6 +67,7 @@ jobs:
           context: ${{ github.workspace }}
           dockerfile: builder/Dockerfile
           image: "${{ env.REGISTRY }}/builder:${{ env.TAG }}"
+          timeout: 600
 
       - name: Build cdn image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
@@ -81,6 +82,7 @@ jobs:
           name: compute
           context: ${{ github.workspace }}/compute
           image: "${{ env.REGISTRY }}/compute:${{ env.TAG }}"
+          timeout: 600
 
       - name: Build docs image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
