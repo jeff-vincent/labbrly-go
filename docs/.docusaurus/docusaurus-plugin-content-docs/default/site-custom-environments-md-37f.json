@@ -1,0 +1,25 @@
+{
+  "unversionedId": "custom-environments",
+  "id": "custom-environments",
+  "title": "Custom Environments",
+  "description": "Ship labs on top of your own Docker images so users see the exact tools and versions your product requires—while retaining the platform’s per‑user isolation and auto‑reclaim. Available on Business & Premium plans.",
+  "source": "@site/custom-environments.md",
+  "sourceDirName": ".",
+  "slug": "/custom-environments",
+  "permalink": "/docs/custom-environments",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Custom Environments"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Generate End-User Links",
+    "permalink": "/docs/get-user-link"
+  },
+  "next": {
+    "title": "Environment Isolation & Safeguards",
+    "permalink": "/docs/environment-isolation"
+  }
+}

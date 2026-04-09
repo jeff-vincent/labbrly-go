@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: builder
+      labels:
+        app: builder
+    spec:
+      selector:
+        matchLabels:
+          app: builder
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: builder
+        spec:
+          containers:
+            - name: builder
+              image: {{ .Values.builder.containers.image }}
+              imagePullPolicy: Always
+              securityContext:
+                # runAsNonRoot: true
+                readOnlyRootFilesystem: true
+                allowPrivilegeEscalation: false
+              env:
+                - name: TMPDIR
+                  value: /tmp
+              ports:
+                - name: http
+                  containerPort: 8000
+              readinessProbe:
+                httpGet:
+                  path: /healthz
+                  port: http
+                initialDelaySeconds: 3
+                periodSeconds: 10
+              livenessProbe:
+                httpGet:
+                  path: /healthz
+                  port: http
+                initialDelaySeconds: 10
+                periodSeconds: 20
+              volumeMounts:
+                - name: build-pvc
+                  mountPath: /builds
+                - name: tmp
+                  mountPath: /tmp
+              envFrom:
+                - secretRef:
+                    name: lab-thingy-jwt-secret
+          volumes:
+            - name: build-pvc
+              persistentVolumeClaim:
+                claimName: build-pvc
+            - name: tmp
+              emptyDir: {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: builder
+      labels:
+        app: builder
+    spec:
+      ports:
+        - port: 8000
+          targetPort: 8000
+          name: http
+      selector:
+        app: builder
+      type: ClusterIP
+
+  - apiVersion: monitoring.coreos.com/v1
+    kind: ServiceMonitor
+    metadata:
+      name: builder-monitor
+      labels:
+        release: kube-prometheus
+    spec:
+      selector:
+        matchLabels:
+          app: builder
+      endpoints:
+        - port: http
+          path: /metrics
+          interval: 15s
+
+  - apiVersion: autoscaling/v2
+    kind: HorizontalPodAutoscaler
+    metadata:
+      name: builder-service-hpa
+    spec:
+      scaleTargetRef:
+        apiVersion: apps/v1
+        kind: Deployment
+        name: builder
+      minReplicas: 1
+      maxReplicas: 10
+      metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 70

@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: billing
+      labels:
+        app: billing
+    spec:
+      selector:
+        matchLabels:
+          app: billing
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: billing
+        spec:
+          containers:
+            - name: billing
+              image: {{ .Values.billing.containers.image }}
+              imagePullPolicy: Always
+              envFrom:
+                - secretRef:
+                    name: lab-thingy-jwt-secret
+                - secretRef:
+                    name: lab-thingy-stripe-secret
+                - secretRef:
+                    name: mongodb-atlas-credentials

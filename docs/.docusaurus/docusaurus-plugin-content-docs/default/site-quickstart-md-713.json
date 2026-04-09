@@ -1,0 +1,26 @@
+{
+  "unversionedId": "quickstart",
+  "id": "quickstart",
+  "title": "Quickstart",
+  "description": "This guide gets you from zero to a working lab users can run (full page or embedded) in a few minutes.",
+  "source": "@site/quickstart.md",
+  "sourceDirName": ".",
+  "slug": "/quickstart",
+  "permalink": "/docs/quickstart",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "quickstart",
+    "title": "Quickstart"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Welcome to Lab Thingy",
+    "permalink": "/docs/"
+  },
+  "next": {
+    "title": "Pricing",
+    "permalink": "/docs/pricing"
+  }
+}

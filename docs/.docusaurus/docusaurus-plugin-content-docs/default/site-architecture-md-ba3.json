@@ -1,0 +1,26 @@
+{
+  "unversionedId": "environment-isolation",
+  "id": "environment-isolation",
+  "title": "Environment Isolation & Safeguards",
+  "description": "How Lab Thingy keeps each user session isolated: per‑user containers, org namespaces, resource tiers, and practical hardening practices you can extend with Custom Environments.",
+  "source": "@site/architecture.md",
+  "sourceDirName": ".",
+  "slug": "/environment-isolation",
+  "permalink": "/docs/environment-isolation",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "environment-isolation",
+    "title": "Environment Isolation & Safeguards"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Custom Environments",
+    "permalink": "/docs/custom-environments"
+  },
+  "next": {
+    "title": "Embedding Labs",
+    "permalink": "/docs/embedding"
+  }
+}

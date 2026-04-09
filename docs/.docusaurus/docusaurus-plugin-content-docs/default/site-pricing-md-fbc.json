@@ -1,0 +1,26 @@
+{
+  "unversionedId": "pricing",
+  "id": "pricing",
+  "title": "Pricing",
+  "description": "Early Access: focus is feedback, not revenue. Baseline usage is free within fair limits; metered pricing activates closer to GA.",
+  "source": "@site/pricing.md",
+  "sourceDirName": ".",
+  "slug": "/pricing",
+  "permalink": "/docs/pricing",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "pricing",
+    "title": "Pricing"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Quickstart",
+    "permalink": "/docs/quickstart"
+  },
+  "next": {
+    "title": "How it works",
+    "permalink": "/docs/how-it-works"
+  }
+}

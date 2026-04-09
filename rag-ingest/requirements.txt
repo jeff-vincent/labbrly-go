@@ -1,0 +1,8 @@
+fastapi==0.115.5
+uvicorn==0.32.0
+kubernetes==31.0.0
+pydantic==2.10.2
+pymongo[srv]==4.13.2
+cryptography==41.0.3
+pyjwt==2.10.1
+Scrapy==2.12.0

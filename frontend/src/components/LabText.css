@@ -1,0 +1,76 @@
+/* Dark mode readability tweaks specific to LabText syntax blocks */
+/* Ensure this file is imported by LabText.js after the theme CSS */
+
+/* Base hljs block contrast in dark mode */
+.dark .hljs,
+.dark pre.hljs,
+.dark pre code.hljs {
+  background: #0f1623; /* deeper neutral than panel for separation */
+  color: #e6edf3;      /* high-contrast foreground */
+}
+
+/* Code font size and line-height for readability */
+.dark pre code.hljs {
+  font-size: 0.925rem;
+  line-height: 1.55;
+}
+
+/* Token colors (tuned for WCAG contrast on dark backgrounds) */
+.dark .hljs-keyword,
+.dark .hljs-selector-tag,
+.dark .hljs-literal,
+.dark .hljs-name {
+  color: #7aa2f7; /* bright but not neon blue */
+}
+
+.dark .hljs-string,
+.dark .hljs-attr,
+.dark .hljs-template-variable,
+.dark .hljs-addition {
+  color: #9ece6a; /* readable green */
+}
+
+.dark .hljs-title,
+.dark .hljs-section,
+.dark .hljs-built_in,
+.dark .hljs-class .hljs-title {
+  color: #7dcfff; /* cyan */
+}
+
+.dark .hljs-attribute,
+.dark .hljs-variable,
+.dark .hljs-type,
+.dark .hljs-number {
+  color: #c0caf5; /* pale blue */
+}
+
+.dark .hljs-symbol,
+.dark .hljs-bullet,
+.dark .hljs-meta {
+  color: #bb9af7; /* purple */
+}
+
+.dark .hljs-quote,
+.dark .hljs-comment,
+.dark .hljs-deletion {
+  color: #6b7280; /* muted gray for comments */
+}
+
+/* Selection highlight inside code blocks */
+.dark pre code.hljs ::selection {
+  background: rgba(125, 191, 255, 0.25);
+}
+
+/* Scrollbar for long code blocks */
+.dark pre.hljs::-webkit-scrollbar {
+  height: 10px;
+}
+.dark pre.hljs::-webkit-scrollbar-thumb {
+  background: #25324a;
+  border-radius: 6px;
+}
+
+/* Match the card’s border radius for consistency */
+.dark pre.hljs {
+  border-radius: 0.5rem;
+}

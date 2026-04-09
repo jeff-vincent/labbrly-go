@@ -1,0 +1,17 @@
+{
+  "unversionedId": "api-overview",
+  "id": "api-overview",
+  "title": "API overview",
+  "description": "A public, high‑level map of endpoints the frontend calls. Shapes are illustrative; keep your org API key server‑side and issue short‑lived user tokens.",
+  "source": "@site/api-overview.md",
+  "sourceDirName": ".",
+  "slug": "/api-overview",
+  "permalink": "/docs/api-overview",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "api-overview",
+    "title": "API overview"
+  }
+}

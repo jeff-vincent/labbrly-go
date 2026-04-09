@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: labs-api
+  labels:
+    app: labs-api
+spec:
+  selector:
+    matchLabels:
+      app: labs-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: labs-api
+    spec:
+      containers:
+        - name: labs-api
+          image: {{ .Values.labsAPI.containers.image | quote }}
+          imagePullPolicy: Always
+          securityContext:
+            # runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+          envFrom:
+            - secretRef:
+                name: mongodb-atlas-credentials
+            - secretRef:
+                name: lab-thingy-jwt-secret
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: labs-api
+  labels:
+    app: labs-api
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http
+  selector:
+    app: labs-api
+  type: ClusterIP
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: labs-api-monitor
+  labels:
+    release: kube-prometheus
+spec:
+  selector:
+    matchLabels:
+      app: labs-api
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: labs-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: labs-api
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70

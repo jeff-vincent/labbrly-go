@@ -1,0 +1,26 @@
+{
+  "unversionedId": "how-it-works",
+  "id": "how-it-works",
+  "title": "How it works",
+  "description": "High‑level flow from a user click (or redirect) to an interactive container.",
+  "source": "@site/how-it-works.md",
+  "sourceDirName": ".",
+  "slug": "/how-it-works",
+  "permalink": "/docs/how-it-works",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "how-it-works",
+    "title": "How it works"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Pricing",
+    "permalink": "/docs/pricing"
+  },
+  "next": {
+    "title": "Generate End-User Links",
+    "permalink": "/docs/get-user-link"
+  }
+}

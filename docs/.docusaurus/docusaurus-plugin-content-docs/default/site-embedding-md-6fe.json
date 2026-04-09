@@ -1,0 +1,22 @@
+{
+  "unversionedId": "embedding",
+  "id": "embedding",
+  "title": "Embedding Labs",
+  "description": "Add an interactive lab to any docs page, blog post, marketing site, or in‑app onboarding flow with a single script tag. Users launch a fully isolated container session in a modal—no redirects required.",
+  "source": "@site/embedding.md",
+  "sourceDirName": ".",
+  "slug": "/embedding",
+  "permalink": "/docs/embedding",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "embedding",
+    "title": "Embedding Labs"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Environment Isolation & Safeguards",
+    "permalink": "/docs/environment-isolation"
+  }
+}

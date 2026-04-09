@@ -1,0 +1,27 @@
+:root {
+  --ifm-color-primary: #4f46e5;
+  --ifm-code-font-size: 95%;
+}
+
+html[data-theme='dark'] {
+  --ifm-color-primary: #818cf8;
+}
+
+/* Minimal enhancements */
+.doc-lead {
+  font-size: 1.1rem;
+  color: var(--ifm-color-emphasis-800);
+  background: linear-gradient(180deg, rgba(79,70,229,0.06), transparent 60%);
+  padding: 0.75rem 1rem;
+  border-left: 4px solid var(--ifm-color-primary);
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.theme-doc-markdown pre code {
+  border-radius: 8px;
+}
+
+.theme-doc-markdown .admonition {
+  border-radius: 8px;
+}

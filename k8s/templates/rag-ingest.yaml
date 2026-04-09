@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-ingest
+  labels:
+    app: rag-ingest
+spec:
+  selector:
+    matchLabels:
+      app: rag-ingest
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rag-ingest
+    spec:
+      containers:
+        - name: rag-ingest
+          image: {{ .Values.ragIngest.containers.image | quote }}
+          imagePullPolicy: Always
+          securityContext:
+            # runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+          envFrom:
+            - secretRef:
+                name: mongodb-atlas-credentials
+            - secretRef:
+                name: app-secret-key
+            - secretRef:
+                name: lab-thingy-jwt-secret
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rag-ingest
+  labels:
+    app: rag-ingest
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http
+  selector:
+    app: rag-ingest
+  type: ClusterIP
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: rag-ingest-monitor
+  labels:
+    release: kube-prometheus
+spec:
+  selector:
+    matchLabels:
+      app: rag-ingest
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: orgs-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: rag-ingest
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70

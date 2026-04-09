@@ -1,0 +1,176 @@
+# ---
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: user-envs
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: regcred
+#   namespace: default
+# type: kubernetes.io/dockerconfigjson
+# data:
+#   .dockerconfigjson: ""
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRole
+# metadata:
+#   name: pod-admin
+# rules:
+# - apiGroups: ["*"]
+#   resources: ["pods", "pods/exec", "namespaces", "jobs", "configmaps", "secrets", "pods/portforward"]
+#   verbs: ["create", "get", "list", "watch", "delete", "update"]
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: default-pod-admin
+# subjects:
+# - kind: ServiceAccount
+#   name: default
+#   namespace: default
+# roleRef:
+#   kind: ClusterRole
+#   name: pod-admin
+#   apiGroup: rbac.authorization.k8s.io
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRole
+# metadata:
+#   name: pod-exec
+# rules:
+# - apiGroups: [""]
+#   resources: ["pods/exec"]
+#   verbs: ["create"]
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: default-pod-exec
+# subjects:
+# - kind: ServiceAccount
+#   name: default
+#   namespace: default
+# roleRef:
+#   kind: ClusterRole
+#   name: pod-exec
+#   apiGroup: rbac.authorization.k8s.io
+# ---
+# apiVersion: v1
+# kind: ResourceQuota
+# metadata:
+#   name: compute-resources
+#   namespace: user-envs
+# spec:
+#   hard:
+#     requests.cpu: "1"     # Maximum CPU requests in cores
+#     requests.memory: 1Gi  # Maximum memory requests in bytes
+#     limits.cpu: "1"       # Maximum CPU limits in cores
+#     limits.memory: 1Gi    # Maximum memory limits in bytes
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: NetworkPolicy
+# metadata:
+#   name: restrict-egress
+#   namespace: user-envs
+# spec:
+#   podSelector:
+#     matchLabels:
+#       app: user-env  # Match pods with label "app": "user-env"
+#   egress:
+#   - to:
+#     - ipBlock:
+#         cidr: 0.0.0.0/0  # Block all IP addresses
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: auth0-credentials
+#   namespace: default
+# type: Opaque
+# data:
+#   AUTH0_CLIENT_ID: ""
+#   AUTH0_CLIENT_SECRET: ""
+
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: mongodb-atlas-credentials
+#   namespace: default
+# type: Opaque
+# data:
+#   MONGO_HOST: "Y2x1c3RlcjAuc3lpeGtlci5tb25nb2RiLm5ldC8/cmV0cnlXcml0ZXM9dHJ1ZSZ3PW1ham9yaXR5JmFwcE5hbWU9Q2x1c3RlcjA="
+#   MONGO_USER: "amVmZmR2aW5jZW50"
+#   MONGO_PASSWORD: "QnRtelhLMjUzYTgzUVFmaw=="
+
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: lab-thingy-jwt-secret
+#   namespace: default
+# type: Opaque
+# data:
+#   LAB_THINGY_JWT_SECRET: "="
+
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: build-pvc
+# spec:
+#   accessModes:
+#     - ReadWriteMany
+#   resources:
+#     requests:
+#       storage: 20Gi
+#   storageClassName: do-block-storage
+# ---
+# apiVersion: v1
+# kind: ServiceAccount
+# metadata:
+#   name: builder-sa
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: Role
+# metadata:
+#   name: builder-role
+# rules:
+#   - apiGroups: ["batch"]
+#     resources: ["jobs"]
+#     verbs: ["create", "get", "list", "watch", "delete"]
+#   - apiGroups: [""]
+#     resources: ["pods"]
+#     verbs: ["get", "list", "delete"]
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: RoleBinding
+# metadata:
+#   name: builder-rb
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: Role
+#   name: builder-role
+# subjects:
+#   - kind: ServiceAccount
+#     name: builder-sa
+#     namespace: default
+
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: lab-thingy-stripe-secret
+#   namespace: default
+# type: Opaque
+# data:
+#   STRIPE_API_KEY: ""
+
+
+          # zoneID: "d238f6c5094f33ba2ad2cd94b78e3418"  # Zone ID for subnode1.xyz
+
+
+
+
+

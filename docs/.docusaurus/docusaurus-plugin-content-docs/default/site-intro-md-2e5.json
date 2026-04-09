@@ -1,0 +1,23 @@
+{
+  "unversionedId": "intro",
+  "id": "intro",
+  "title": "Welcome to Lab Thingy",
+  "description": "Lab Thingy lets you publish interactive, browser‑based labs (code + terminal + optional video) backed by short‑lived, isolated containers—no platform build or infra babysitting required.",
+  "source": "@site/intro.md",
+  "sourceDirName": ".",
+  "slug": "/",
+  "permalink": "/docs/",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "intro",
+    "title": "Welcome to Lab Thingy",
+    "slug": "/"
+  },
+  "sidebar": "docs",
+  "next": {
+    "title": "Quickstart",
+    "permalink": "/docs/quickstart"
+  }
+}

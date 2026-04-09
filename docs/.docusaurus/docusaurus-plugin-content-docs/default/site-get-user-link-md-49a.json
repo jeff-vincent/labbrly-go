@@ -1,0 +1,25 @@
+{
+  "unversionedId": "get-user-link",
+  "id": "get-user-link",
+  "title": "Generate End-User Links",
+  "description": "Give each end user a one‑click way to launch a lab tied to your organization and a specific lab_id.",
+  "source": "@site/get-user-link.md",
+  "sourceDirName": ".",
+  "slug": "/get-user-link",
+  "permalink": "/docs/get-user-link",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Generate End-User Links"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "How it works",
+    "permalink": "/docs/how-it-works"
+  },
+  "next": {
+    "title": "Custom Environments",
+    "permalink": "/docs/custom-environments"
+  }
+}

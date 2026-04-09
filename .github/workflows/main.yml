@@ -1,0 +1,39 @@
+name: CI - All Branches
+
+on:
+  push:
+    branches:
+      - '**'  # matches all branches
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23.3.0
+
+      - name: Install dependencies
+        run: cd frontend && npm install
+
+      - name: Run tests
+        run: cd frontend && npm test
+
+      # - name: Build
+      #   run: cd frontend && npm run build
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Run Python tests
+        run: |
+             chmod +x tests/set_test_env.sh
+             ./tests/set_test_env.sh
+             pip install -r tests/requirements-all.txt
+             pytest 

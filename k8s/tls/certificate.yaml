@@ -1,0 +1,17 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: labs-wildcard-tls-v3
+  namespace: default
+spec:
+  # Secret where the issued wildcard + base cert will be stored
+  secretName: labs-wildcard-tls
+  # Reference the Cloudflare dns01 ClusterIssuer
+  issuerRef:
+    name: letsencrypt-labs
+    kind: ClusterIssuer
+  # Include root, base labs subdomain, and wildcard
+  dnsNames:
+    - subnode1.xyz
+    - '*.labs.subnode1.xyz'

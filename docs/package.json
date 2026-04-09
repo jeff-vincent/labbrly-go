@@ -1,0 +1,21 @@
+{
+  "name": "lab-thingy-docs",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "start": "node --preserve-symlinks ./node_modules/@docusaurus/core/bin/docusaurus.mjs start",
+    "build": "node --preserve-symlinks ./node_modules/@docusaurus/core/bin/docusaurus.mjs build",
+    "serve": "node --preserve-symlinks ./node_modules/@docusaurus/core/bin/docusaurus.mjs serve",
+    "clear": "node --preserve-symlinks ./node_modules/@docusaurus/core/bin/docusaurus.mjs clear",
+    "deploy": "node --preserve-symlinks ./node_modules/@docusaurus/core/bin/docusaurus.mjs deploy"
+  },
+  "dependencies": {
+    "@docusaurus/core": "^2.4.3",
+    "@docusaurus/preset-classic": "^2.4.3",
+    "@docusaurus/theme-mermaid": "^2.4.3",
+    "clsx": "^2.1.0",
+    "cytoscape": "3.26.0",
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
+  }
+}

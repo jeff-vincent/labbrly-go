@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #0d0d11;
+  color: #e5e7eb;
+}
+
+/* Scrollbar styling for dark theme */
+body.dark ::-webkit-scrollbar { width: 10px; }
+body.dark ::-webkit-scrollbar-track { background: #16171d; }
+body.dark ::-webkit-scrollbar-thumb { background: #2d2f36; border-radius: 6px; }
+body.dark ::-webkit-scrollbar-thumb:hover { background: #3a3d45; }
+
+/* Global dark-mode overrides to auto-convert remaining light themed components */
+.dark .bg-white { background-color: #1e1f26 !important; }
+.dark .bg-gray-50 { background-color: #24262f !important; }
+.dark .bg-gray-100 { background-color: #2d2f36 !important; }
+.dark .bg-blue-50 { background-color: rgba(14,190,255,0.08) !important; }
+.dark .bg-green-50 { background-color: rgba(71,207,115,0.10) !important; }
+.dark .bg-amber-50 { background-color: rgba(252,208,0,0.08) !important; }
+.dark .text-gray-900 { color: #f5f6f7 !important; }
+.dark .text-gray-800 { color: #ebecef !important; }
+.dark .text-gray-700 { color: #d1d5db !important; }
+.dark .text-gray-600 { color: #9ca3af !important; }
+.dark .text-gray-500 { color: #6b7280 !important; }
+.dark .text-blue-600 { color: #0ebeff !important; }
+.dark .text-green-600 { color: #47cf73 !important; }
+.dark .border-gray-100 { border-color: #2a2c33 !important; }
+.dark .border-gray-200 { border-color: #34363f !important; }
+.dark .border-gray-300 { border-color: #3f424b !important; }
+.dark .border-blue-200 { border-color: #0ebeff !important; }
+.dark .shadow-sm { box-shadow: 0 2px 4px -1px rgba(0,0,0,.7),0 4px 6px -2px rgba(0,0,0,.6) !important; }
+.dark .hover\:bg-gray-50:hover { background-color: #2d2f36 !important; }
+.dark .hover\:bg-gray-100:hover { background-color: #34363f !important; }
+.dark .prose code { background-color: #24262f; color: #47cf73; }
+.dark .prose pre { background-color: #24262f; border: 1px solid #34363f; }
+.dark .prose a { color: #0ebeff; }
+
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Add this CSS to your stylesheets or index.css */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* Set the container height to the viewport height */
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+

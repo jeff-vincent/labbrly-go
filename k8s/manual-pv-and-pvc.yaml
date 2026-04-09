@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: build-pv
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""  # no StorageClass; bind only to PVCs that also set "" (empty)
+  local:
+    # Ensure this directory exists on the target node and has appropriate permissions
+    path: /tmp
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - pool-l5tvajx9o-lzlw5
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: build-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: ""  # prevent dynamic provisioning; bind to the PV above
+  volumeName: build-pv   # bind directly to the pre-provisioned PV
+

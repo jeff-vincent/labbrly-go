@@ -1,0 +1,72 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "path": "/docs/",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/docs/",
+          "mainDocId": "intro",
+          "docs": [
+            {
+              "id": "api-overview",
+              "path": "/docs/api-overview"
+            },
+            {
+              "id": "custom-environments",
+              "path": "/docs/custom-environments",
+              "sidebar": "docs"
+            },
+            {
+              "id": "embedding",
+              "path": "/docs/embedding",
+              "sidebar": "docs"
+            },
+            {
+              "id": "environment-isolation",
+              "path": "/docs/environment-isolation",
+              "sidebar": "docs"
+            },
+            {
+              "id": "get-user-link",
+              "path": "/docs/get-user-link",
+              "sidebar": "docs"
+            },
+            {
+              "id": "how-it-works",
+              "path": "/docs/how-it-works",
+              "sidebar": "docs"
+            },
+            {
+              "id": "intro",
+              "path": "/docs/",
+              "sidebar": "docs"
+            },
+            {
+              "id": "pricing",
+              "path": "/docs/pricing",
+              "sidebar": "docs"
+            },
+            {
+              "id": "quickstart",
+              "path": "/docs/quickstart",
+              "sidebar": "docs"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "docs": {
+              "link": {
+                "path": "/docs/",
+                "label": "intro"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    }
+  }
+}

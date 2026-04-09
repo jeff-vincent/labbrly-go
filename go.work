@@ -1,0 +1,15 @@
+go 1.22
+
+use (
+	./shared
+	./compute
+	./billing
+	./labs
+	./analytics
+	./analytics-worker
+	./orgs
+	./builder
+	./garbage-collection
+	./llm-proxy
+	./video
+)

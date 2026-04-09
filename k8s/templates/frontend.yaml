@@ -1,0 +1,160 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: {{ .Values.frontend.containers.image | quote }}
+          imagePullPolicy: Always
+          env:
+            - name: BASE_URL
+              value: {{ .Values.frontend.envVars.BASE_URL}}
+          ports:
+            - name: frontend
+              containerPort: 80
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      name: frontend
+  selector:
+    app: frontend
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pyprodigy-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-labs
+    nginx.ingress.kubernetes.io/proxy-body-size: 500m
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/client-body-buffer-size: "100m"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - subnode1.xyz
+    - '*.labs.subnode1.xyz'
+    secretName: labs-wildcard-tls
+  rules:
+    - host: subnode1.xyz
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: frontend
+              port:
+                number: 80
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: users
+              port:
+                number: 8000
+        - path: /video
+          pathType: Prefix
+          backend:
+            service:
+              name: video-api
+              port:
+                number: 8000
+        - path: /labs
+          pathType: Prefix
+          backend:
+            service:
+              name: labs-api
+              port:
+                number: 8000
+        - path: /compute
+          pathType: Prefix
+          backend:
+            service:
+              name: compute-api
+              port:
+                number: 8000
+        - path: /auth
+          pathType: Prefix
+          backend:
+            service:
+              name: auth-api
+              port:
+                number: 8000
+        - path: /orgs
+          pathType: Prefix
+          backend:
+            service:
+              name: orgs-api
+              port:
+                number: 8000
+        - path: /docs
+          pathType: Prefix
+          backend:
+            service:
+              name: docs
+              port:
+                number: 80
+        - path: /builder
+          pathType: Prefix
+          backend:
+            service:
+              name: builder
+              port:
+                number: 8000
+        - path: /embed.js
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: embed-cdn
+              port:
+                number: 80
+        - path: /llm
+          pathType: Prefix
+          backend:
+            service:
+              name: llm-api
+              port:
+                number: 8000
+        - path: /analytics
+          pathType: Prefix
+          backend:
+            service:
+              name: analytics-api
+              port:
+                number: 8000
+    # Wildcard host rule for user workload subdomains. Requests terminate at compute-api which
+    # internally proxies to the user's pod based on the host-derived port (and user slug).
+    - host: '*.labs.subnode1.xyz'
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: compute-api
+              port:
+                number: 8000

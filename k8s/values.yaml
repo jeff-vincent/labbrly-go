@@ -1,0 +1,66 @@
+frontend:
+  containers:
+    image: jdvincent/lab-thingy-frontend:latest
+  
+  envVars:
+    BASE_URL: "http://localhost/"
+
+  ingress:
+    ingressClassName: kong
+    host: null
+
+orgsAPI:
+  containers:
+    image: jdvincent/lab-thingy-orgs:latest
+
+labsAPI:
+  containers:
+    image: jdvincent/lab-thingy-labs:latest
+
+videoAPI:
+  containers:
+    image: jdvincent/lab-thingy-video:compression
+
+computeAPI:
+  containers:
+    image: jdvincent/lab-thingy-compute:http-proxy
+
+garbageCollector:
+  containers:
+    image: jdvincent/lab-thingy-garbage-collection:latest
+
+authAPI:
+  containers:
+    image: jdvincent/lab-thingy-auth:latest
+
+docs:
+  containers:
+    image: jdvincent/lab-thingy-docs:latest
+
+builder:
+  containers:
+    image: jdvincent/lab-thingy-builder:latest
+
+cdn:
+  containers:
+    image: jdvincent/lab-thingy-cdn:latest
+
+billing:
+  containers:
+    image: jdvincent/lab-thingy-billing:latest
+
+llmAPI:
+  containers:
+    image: jdvincent/lab-thingy-llm:latest
+
+analyticsAPI:
+  containers:
+    image: jdvincent/lab-thingy-analytics:latest
+
+analyticsWorker:
+  containers:
+    image: jdvincent/lab-thingy-analytics-worker:latest
+
+ragIngest:
+  containers:
+    image: jdvincent/lab-thingy-rag-ingest:latest
