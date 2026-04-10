@@ -27,6 +27,12 @@ jobs:
                 /builds/*.yaml /builds/*.sh
 
       # -- Build all images --
+      - name: Build auth image
+        uses: kindling-sh/kindling/.github/actions/kindling-build@main
+        with:
+          name: auth
+          context: ${{ github.workspace }}/auth
+          image: "${{ env.REGISTRY }}/auth:${{ env.TAG }}"
 
       - name: Build analytics image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
@@ -41,13 +47,6 @@ jobs:
           name: analytics-worker
           context: ${{ github.workspace }}/analytics-worker
           image: "${{ env.REGISTRY }}/analytics-worker:${{ env.TAG }}"
-
-      - name: Build auth image
-        uses: kindling-sh/kindling/.github/actions/kindling-build@main
-        with:
-          name: auth
-          context: ${{ github.workspace }}/auth
-          image: "${{ env.REGISTRY }}/auth:${{ env.TAG }}"
 
       - name: Build billing image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
@@ -77,12 +76,25 @@ jobs:
           context: ${{ github.workspace }}/compute
           image: "${{ env.REGISTRY }}/compute:${{ env.TAG }}"
 
+      - name: Patch docs Dockerfile for Kaniko
+        shell: bash
+        run: |
+          cd ${{ github.workspace }}/docs
+          sed -i '/^FROM node/a ENV npm_config_cache=/tmp/.npm' Dockerfile
+
       - name: Build docs image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
         with:
           name: docs
           context: ${{ github.workspace }}/docs
           image: "${{ env.REGISTRY }}/docs:${{ env.TAG }}"
+
+      - name: Build frontend image
+        uses: kindling-sh/kindling/.github/actions/kindling-build@main
+        with:
+          name: frontend
+          context: ${{ github.workspace }}/frontend
+          image: "${{ env.REGISTRY }}/frontend:${{ env.TAG }}"
 
       - name: Build garbage-collection image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
@@ -127,283 +139,308 @@ jobs:
           image: "${{ env.REGISTRY }}/video:${{ env.TAG }}"
 
       # -- Deploy in dependency order --
-
       - name: Deploy auth
         uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
         with:
           name: "${{ github.actor }}-auth"
           image: "${{ env.REGISTRY }}/auth:${{ env.TAG }}"
-          port: 8000
+          port: "8000"
           ingress-host: "${{ github.actor }}-auth.localhost"
           health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
             app.kubernetes.io/component: auth
-            apps.labbrly.com/github-username: ${{ github.actor }}
+            apps.example.com/github-username: ${{ github.actor }}
           env: |
-            - name: LAB_THINGY_JWT_SECRET
-              value: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
-            - name: AUTH0_DOMAIN
-              valueFrom:
-                secretKeyRef:
-                  name: kindling-secret-auth0-domain
-                  key: AUTH0_DOMAIN
-          dependencies: |
-            - type: mongodb
-
-      - name: Deploy orgs
-        uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
-        with:
-          name: "${{ github.actor }}-orgs"
-          image: "${{ env.REGISTRY }}/orgs:${{ env.TAG }}"
-          port: 8000
-          ingress-host: "${{ github.actor }}-orgs.localhost"
-          health-check-path: "/healthz"
-          labels: |
-            app.kubernetes.io/part-of: labbrly
-            app.kubernetes.io/component: orgs
-            apps.labbrly.com/github-username: ${{ github.actor }}
-          env: |
-            - name: LAB_THINGY_JWT_SECRET
-              value: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
             - name: APP_SECRET_KEY
-              value: "c4d5e6f7a8b9c4d5e6f7a8b9c4d5e6f7a8b9c4d5e6f7a8b9c4d5e6f7a8b9c4d5"
+              value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
+            - name: LAB_THINGY_JWT_SECRET
+              value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
             - name: AUTH0_DOMAIN
               valueFrom:
                 secretKeyRef:
                   name: kindling-secret-auth0-domain
                   key: AUTH0_DOMAIN
-          dependencies: |
-            - type: mongodb
-
-      - name: Deploy labs
-        uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
-        with:
-          name: "${{ github.actor }}-labs"
-          image: "${{ env.REGISTRY }}/labs:${{ env.TAG }}"
-          port: 8000
-          ingress-host: "${{ github.actor }}-labs.localhost"
-          health-check-path: "/healthz"
-          labels: |
-            app.kubernetes.io/part-of: labbrly
-            app.kubernetes.io/component: labs
-            apps.labbrly.com/github-username: ${{ github.actor }}
-          env: |
-            - name: LAB_THINGY_JWT_SECRET
-              value: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
-          dependencies: |
-            - type: mongodb
+          # NOTE: OAuth detected — run 'kindling expose' for a public HTTPS URL
+          replicas: "1"
 
       - name: Deploy analytics
         uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
         with:
           name: "${{ github.actor }}-analytics"
           image: "${{ env.REGISTRY }}/analytics:${{ env.TAG }}"
-          port: 8000
+          port: "8000"
           ingress-host: "${{ github.actor }}-analytics.localhost"
           health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
             app.kubernetes.io/component: analytics
-            apps.labbrly.com/github-username: ${{ github.actor }}
+            apps.example.com/github-username: ${{ github.actor }}
           env: |
+            - name: APP_SECRET_KEY
+              value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
             - name: LAB_THINGY_JWT_SECRET
-              value: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+              value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
           dependencies: |
-            - type: mongodb
             - type: redis
+          replicas: "1"
 
       - name: Deploy analytics-worker
         uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
         with:
           name: "${{ github.actor }}-analytics-worker"
           image: "${{ env.REGISTRY }}/analytics-worker:${{ env.TAG }}"
-          port: 8000
+          port: "8000"
           ingress-host: "${{ github.actor }}-analytics-worker.localhost"
           health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
             app.kubernetes.io/component: analytics-worker
-            apps.labbrly.com/github-username: ${{ github.actor }}
+            apps.example.com/github-username: ${{ github.actor }}
           env: |
+            - name: APP_SECRET_KEY
+              value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
             - name: LAB_THINGY_JWT_SECRET
-              value: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
-            - name: MONGO_URL
-              value: "mongodb://devuser:devpass@${{ github.actor }}-analytics-mongodb:27017/devdb?authSource=admin"
-            - name: REDIS_URL
-              value: "redis://${{ github.actor }}-analytics-redis:6379/0"
+              value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+          dependencies: |
+            - type: redis
+          replicas: "1"
 
       - name: Deploy billing
         uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
         with:
           name: "${{ github.actor }}-billing"
           image: "${{ env.REGISTRY }}/billing:${{ env.TAG }}"
-          port: 8000
-          health-check-type: "none"
+          port: "8000"
+          ingress-host: "${{ github.actor }}-billing.localhost"
+          health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
             app.kubernetes.io/component: billing
-            apps.labbrly.com/github-username: ${{ github.actor }}
+            apps.example.com/github-username: ${{ github.actor }}
           env: |
-            - name: MONGO_URL
-              value: "mongodb://devuser:devpass@${{ github.actor }}-orgs-mongodb:27017/devdb?authSource=admin"
-            - name: REDIS_URL
-              value: "redis://${{ github.actor }}-analytics-redis:6379/0"
+            - name: APP_SECRET_KEY
+              value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
+            - name: LAB_THINGY_JWT_SECRET
+              value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+          dependencies: |
+            - type: redis
+          replicas: "1"
 
       - name: Deploy builder
         uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
         with:
           name: "${{ github.actor }}-builder"
           image: "${{ env.REGISTRY }}/builder:${{ env.TAG }}"
-          port: 8000
+          port: "8000"
           ingress-host: "${{ github.actor }}-builder.localhost"
           health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
             app.kubernetes.io/component: builder
-            apps.labbrly.com/github-username: ${{ github.actor }}
+            apps.example.com/github-username: ${{ github.actor }}
           env: |
-            - name: LAB_THINGY_JWT_SECRET
-              value: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
-
-      - name: Deploy compute
-        uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
-        with:
-          name: "${{ github.actor }}-compute"
-          image: "${{ env.REGISTRY }}/compute:${{ env.TAG }}"
-          port: 8000
-          ingress-host: "${{ github.actor }}-compute.localhost"
-          health-check-path: "/healthz"
-          labels: |
-            app.kubernetes.io/part-of: labbrly
-            app.kubernetes.io/component: compute
-            apps.labbrly.com/github-username: ${{ github.actor }}
-          env: |
-            - name: LAB_THINGY_JWT_SECRET
-              value: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
-          dependencies: |
-            - type: redis
-
-      - name: Deploy garbage-collection
-        uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
-        with:
-          name: "${{ github.actor }}-garbage-collection"
-          image: "${{ env.REGISTRY }}/garbage-collection:${{ env.TAG }}"
-          port: 8000
-          health-check-type: "none"
-          labels: |
-            app.kubernetes.io/part-of: labbrly
-            app.kubernetes.io/component: garbage-collection
-            apps.labbrly.com/github-username: ${{ github.actor }}
-          env: |
-            - name: REDIS_URL
-              value: "redis://${{ github.actor }}-compute-redis:6379/0"
-
-      - name: Deploy llm-proxy
-        uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
-        with:
-          name: "${{ github.actor }}-llm-proxy"
-          image: "${{ env.REGISTRY }}/llm-proxy:${{ env.TAG }}"
-          port: 8000
-          ingress-host: "${{ github.actor }}-llm-proxy.localhost"
-          health-check-path: "/healthz"
-          labels: |
-            app.kubernetes.io/part-of: labbrly
-            app.kubernetes.io/component: llm-proxy
-            apps.labbrly.com/github-username: ${{ github.actor }}
-          env: |
-            - name: LAB_THINGY_JWT_SECRET
-              value: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
             - name: APP_SECRET_KEY
-              value: "c4d5e6f7a8b9c4d5e6f7a8b9c4d5e6f7a8b9c4d5e6f7a8b9c4d5e6f7a8b9c4d5"
-          dependencies: |
-            - type: mongodb
-
-      - name: Deploy rag-ingest
-        uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
-        with:
-          name: "${{ github.actor }}-rag-ingest"
-          image: "${{ env.REGISTRY }}/rag-ingest:${{ env.TAG }}"
-          port: 8000
-          ingress-host: "${{ github.actor }}-rag-ingest.localhost"
-          health-check-path: "/healthz"
-          labels: |
-            app.kubernetes.io/part-of: labbrly
-            app.kubernetes.io/component: rag-ingest
-            apps.labbrly.com/github-username: ${{ github.actor }}
-          env: |
+              value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
             - name: LAB_THINGY_JWT_SECRET
-              value: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
-            - name: APP_SECRET_KEY
-              value: "c4d5e6f7a8b9c4d5e6f7a8b9c4d5e6f7a8b9c4d5e6f7a8b9c4d5e6f7a8b9c4d5"
-            - name: MONGO_HOST
-              value: "${{ github.actor }}-orgs-mongodb"
-            - name: MONGO_USER
-              value: "devuser"
-            - name: MONGO_PASSWORD
-              value: "devpass"
-
-      - name: Deploy video
-        uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
-        with:
-          name: "${{ github.actor }}-video"
-          image: "${{ env.REGISTRY }}/video:${{ env.TAG }}"
-          port: 8000
-          ingress-host: "${{ github.actor }}-video.localhost"
-          health-check-path: "/healthz"
-          labels: |
-            app.kubernetes.io/part-of: labbrly
-            app.kubernetes.io/component: video
-            apps.labbrly.com/github-username: ${{ github.actor }}
-          env: |
-            - name: LAB_THINGY_JWT_SECRET
-              value: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
-          dependencies: |
-            - type: mongodb
+              value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+          replicas: "1"
 
       - name: Deploy cdn
         uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
         with:
           name: "${{ github.actor }}-cdn"
           image: "${{ env.REGISTRY }}/cdn:${{ env.TAG }}"
-          port: 80
+          port: "80"
           ingress-host: "${{ github.actor }}-cdn.localhost"
           health-check-path: "/"
           labels: |
             app.kubernetes.io/part-of: labbrly
             app.kubernetes.io/component: cdn
-            apps.labbrly.com/github-username: ${{ github.actor }}
+            apps.example.com/github-username: ${{ github.actor }}
+          env: |
+            - name: APP_SECRET_KEY
+              value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
+            - name: LAB_THINGY_JWT_SECRET
+              value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+          replicas: "1"
+
+      - name: Deploy compute
+        uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
+        with:
+          name: "${{ github.actor }}-compute"
+          image: "${{ env.REGISTRY }}/compute:${{ env.TAG }}"
+          port: "8000"
+          ingress-host: "${{ github.actor }}-compute.localhost"
+          health-check-path: "/healthz"
+          labels: |
+            app.kubernetes.io/part-of: labbrly
+            app.kubernetes.io/component: compute
+            apps.example.com/github-username: ${{ github.actor }}
+          env: |
+            - name: APP_SECRET_KEY
+              value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
+            - name: LAB_THINGY_JWT_SECRET
+              value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+          dependencies: |
+            - type: redis
+          replicas: "1"
 
       - name: Deploy docs
         uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
         with:
           name: "${{ github.actor }}-docs"
           image: "${{ env.REGISTRY }}/docs:${{ env.TAG }}"
-          port: 80
+          port: "80"
           ingress-host: "${{ github.actor }}-docs.localhost"
-          health-check-path: "/docs/"
+          health-check-path: "/"
           labels: |
             app.kubernetes.io/part-of: labbrly
             app.kubernetes.io/component: docs
-            apps.labbrly.com/github-username: ${{ github.actor }}
+            apps.example.com/github-username: ${{ github.actor }}
+          env: |
+            - name: APP_SECRET_KEY
+              value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
+            - name: LAB_THINGY_JWT_SECRET
+              value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+          replicas: "1"
+
+      - name: Deploy frontend
+        uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
+        with:
+          name: "${{ github.actor }}-frontend"
+          image: "${{ env.REGISTRY }}/frontend:${{ env.TAG }}"
+          port: "80"
+          ingress-host: "${{ github.actor }}-frontend.localhost"
+          health-check-path: "/"
+          labels: |
+            app.kubernetes.io/part-of: labbrly
+            app.kubernetes.io/component: frontend
+            apps.example.com/github-username: ${{ github.actor }}
+          env: |
+            - name: APP_SECRET_KEY
+              value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
+            - name: LAB_THINGY_JWT_SECRET
+              value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+          replicas: "1"
+
+      - name: Deploy garbage-collection
+        uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
+        with:
+          name: "${{ github.actor }}-garbage-collection"
+          image: "${{ env.REGISTRY }}/garbage-collection:${{ env.TAG }}"
+          port: "8000"
+          ingress-host: "${{ github.actor }}-garbage-collection.localhost"
+          health-check-path: "/healthz"
+          labels: |
+            app.kubernetes.io/part-of: labbrly
+            app.kubernetes.io/component: garbage-collection
+            apps.example.com/github-username: ${{ github.actor }}
+          env: |
+            - name: APP_SECRET_KEY
+              value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
+            - name: LAB_THINGY_JWT_SECRET
+              value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+          dependencies: |
+            - type: redis
+          replicas: "1"
+
+      - name: Deploy labs
+        uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
+        with:
+          name: "${{ github.actor }}-labs"
+          image: "${{ env.REGISTRY }}/labs:${{ env.TAG }}"
+          port: "8000"
+          ingress-host: "${{ github.actor }}-labs.localhost"
+          health-check-path: "/healthz"
+          labels: |
+            app.kubernetes.io/part-of: labbrly
+            app.kubernetes.io/component: labs
+            apps.example.com/github-username: ${{ github.actor }}
+          env: |
+            - name: APP_SECRET_KEY
+              value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
+            - name: LAB_THINGY_JWT_SECRET
+              value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+          replicas: "1"
+
+      - name: Deploy llm-proxy
+        uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
+        with:
+          name: "${{ github.actor }}-llm-proxy"
+          image: "${{ env.REGISTRY }}/llm-proxy:${{ env.TAG }}"
+          port: "8000"
+          ingress-host: "${{ github.actor }}-llm-proxy.localhost"
+          health-check-path: "/healthz"
+          labels: |
+            app.kubernetes.io/part-of: labbrly
+            app.kubernetes.io/component: llm-proxy
+            apps.example.com/github-username: ${{ github.actor }}
+          env: |
+            - name: APP_SECRET_KEY
+              value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
+            - name: LAB_THINGY_JWT_SECRET
+              value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+          replicas: "1"
+
+      - name: Deploy orgs
+        uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
+        with:
+          name: "${{ github.actor }}-orgs"
+          image: "${{ env.REGISTRY }}/orgs:${{ env.TAG }}"
+          port: "8000"
+          ingress-host: "${{ github.actor }}-orgs.localhost"
+          health-check-path: "/healthz"
+          labels: |
+            app.kubernetes.io/part-of: labbrly
+            app.kubernetes.io/component: orgs
+            apps.example.com/github-username: ${{ github.actor }}
+          env: |
+            - name: APP_SECRET_KEY
+              value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
+            - name: LAB_THINGY_JWT_SECRET
+              value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+          replicas: "1"
+
+      - name: Deploy rag-ingest
+        uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
+        with:
+          name: "${{ github.actor }}-rag-ingest"
+          image: "${{ env.REGISTRY }}/rag-ingest:${{ env.TAG }}"
+          port: "8000"
+          ingress-host: "${{ github.actor }}-rag-ingest.localhost"
+          health-check-path: "/healthz"
+          labels: |
+            app.kubernetes.io/part-of: labbrly
+            app.kubernetes.io/component: rag-ingest
+            apps.example.com/github-username: ${{ github.actor }}
+          env: |
+            - name: APP_SECRET_KEY
+              value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
+            - name: LAB_THINGY_JWT_SECRET
+              value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+          replicas: "1"
+
+      - name: Deploy video
+        uses: kindling-sh/kindling/.github/actions/kindling-deploy@main
+        with:
+          name: "${{ github.actor }}-video"
+          image: "${{ env.REGISTRY }}/video:${{ env.TAG }}"
+          port: "8000"
+          ingress-host: "${{ github.actor }}-video.localhost"
+          health-check-path: "/healthz"
+          labels: |
+            app.kubernetes.io/part-of: labbrly
+            app.kubernetes.io/component: video
+            apps.example.com/github-username: ${{ github.actor }}
+          env: |
+            - name: APP_SECRET_KEY
+              value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
+            - name: LAB_THINGY_JWT_SECRET
+              value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+          replicas: "1"
 
       - name: Summary
         run: |
           echo "🎉 Deploy complete!"
-          echo "🌐 Auth:             http://${{ github.actor }}-auth.localhost"
-          echo "🌐 Orgs:             http://${{ github.actor }}-orgs.localhost"
-          echo "🌐 Labs:             http://${{ github.actor }}-labs.localhost"
-          echo "🌐 Analytics:        http://${{ github.actor }}-analytics.localhost"
-          echo "🌐 Analytics Worker: http://${{ github.actor }}-analytics-worker.localhost"
-          echo "🌐 Builder:          http://${{ github.actor }}-builder.localhost"
-          echo "🌐 Compute:          http://${{ github.actor }}-compute.localhost"
-          echo "🌐 LLM Proxy:        http://${{ github.actor }}-llm-proxy.localhost"
-          echo "🌐 RAG Ingest:       http://${{ github.actor }}-rag-ingest.localhost"
-          echo "🌐 Video:            http://${{ github.actor }}-video.localhost"
-          echo "🌐 CDN:              http://${{ github.actor }}-cdn.localhost"
-          echo "🌐 Docs:             http://${{ github.actor }}-docs.localhost"
-          echo ""
-          echo "📝 Required secrets (run 'kindling secrets set <NAME> <VALUE>'):"
-          echo "   - AUTH0_DOMAIN"
-          echo ""
-          echo "🔐 OAuth detected — run 'kindling expose' for public HTTPS URLs"
+          echo "🌐 Access your services via their *.localhost ingress hosts."
