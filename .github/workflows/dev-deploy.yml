@@ -24,7 +24,7 @@ jobs:
                 /builds/*.apply /builds/*.apply-done /builds/*.apply-log \
                 /builds/*.apply-exitcode /builds/*.exitcode \
                 /builds/*.log /builds/*.dest /builds/*.tar.gz \
-                /builds/*.yaml /builds/*.sh
+                /builds/*.yaml /builds/*.sh /builds/*.dockerfile
 
       # -- Build all images --
       - name: Build auth image
