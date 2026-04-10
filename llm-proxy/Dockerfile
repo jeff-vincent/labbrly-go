@@ -1,14 +1,10 @@
-# Build context: labbrly-go/ (workspace root)
-# docker build -f llm-proxy/Dockerfile .
 FROM golang:1.22-alpine AS builder
 
-WORKDIR /workspace
+WORKDIR /build
 
-COPY shared/ ./shared/
-COPY llm-proxy/ ./llm-proxy/
+COPY . .
 
-WORKDIR /workspace/llm-proxy
-RUN CGO_ENABLED=0 GOOS=linux GOWORK=off go build -buildvcs=false -o llm-proxy ./cmd/server
+RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -buildvcs=false -o llm-proxy ./cmd/server
 
 # ---- runtime ----
 FROM alpine:3.19
@@ -16,7 +12,7 @@ FROM alpine:3.19
 RUN apk add --no-cache ca-certificates tzdata
 
 WORKDIR /app
-COPY --from=builder /workspace/llm-proxy/llm-proxy .
+COPY --from=builder /build/llm-proxy .
 
 EXPOSE 8000
 CMD ["/app/llm-proxy"]

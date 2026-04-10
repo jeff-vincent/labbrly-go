@@ -2,11 +2,9 @@ FROM golang:1.22-alpine AS builder
 
 WORKDIR /build
 
-COPY go.mod go.sum ./
-RUN go mod download
-
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -buildvcs=false -o compute ./cmd/server
+
+RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -buildvcs=false -o compute ./cmd/server
 
 # ---- runtime ----
 FROM alpine:3.19

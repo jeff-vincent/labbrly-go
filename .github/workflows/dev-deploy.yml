@@ -32,42 +32,36 @@ jobs:
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
         with:
           name: analytics
-          context: ${{ github.workspace }}
-          dockerfile: analytics/Dockerfile
+          context: ${{ github.workspace }}/analytics
           image: "${{ env.REGISTRY }}/analytics:${{ env.TAG }}"
 
       - name: Build analytics-worker image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
         with:
           name: analytics-worker
-          context: ${{ github.workspace }}
-          dockerfile: analytics-worker/Dockerfile
+          context: ${{ github.workspace }}/analytics-worker
           image: "${{ env.REGISTRY }}/analytics-worker:${{ env.TAG }}"
 
       - name: Build auth image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
         with:
           name: auth
-          context: ${{ github.workspace }}
-          dockerfile: auth/Dockerfile
+          context: ${{ github.workspace }}/auth
           image: "${{ env.REGISTRY }}/auth:${{ env.TAG }}"
 
       - name: Build billing image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
         with:
           name: billing
-          context: ${{ github.workspace }}
-          dockerfile: billing/Dockerfile
+          context: ${{ github.workspace }}/billing
           image: "${{ env.REGISTRY }}/billing:${{ env.TAG }}"
 
       - name: Build builder image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
         with:
           name: builder
-          context: ${{ github.workspace }}
-          dockerfile: builder/Dockerfile
+          context: ${{ github.workspace }}/builder
           image: "${{ env.REGISTRY }}/builder:${{ env.TAG }}"
-          timeout: 600
 
       - name: Build cdn image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
@@ -82,7 +76,6 @@ jobs:
           name: compute
           context: ${{ github.workspace }}/compute
           image: "${{ env.REGISTRY }}/compute:${{ env.TAG }}"
-          timeout: 600
 
       - name: Build docs image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
@@ -90,39 +83,33 @@ jobs:
           name: docs
           context: ${{ github.workspace }}/docs
           image: "${{ env.REGISTRY }}/docs:${{ env.TAG }}"
-          timeout: 600
 
       - name: Build garbage-collection image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
         with:
           name: garbage-collection
-          context: ${{ github.workspace }}
-          dockerfile: garbage-collection/Dockerfile
+          context: ${{ github.workspace }}/garbage-collection
           image: "${{ env.REGISTRY }}/garbage-collection:${{ env.TAG }}"
-          timeout: 600
 
       - name: Build labs image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
         with:
           name: labs
-          context: ${{ github.workspace }}
-          dockerfile: labs/Dockerfile
+          context: ${{ github.workspace }}/labs
           image: "${{ env.REGISTRY }}/labs:${{ env.TAG }}"
 
       - name: Build llm-proxy image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
         with:
           name: llm-proxy
-          context: ${{ github.workspace }}
-          dockerfile: llm-proxy/Dockerfile
+          context: ${{ github.workspace }}/llm-proxy
           image: "${{ env.REGISTRY }}/llm-proxy:${{ env.TAG }}"
 
       - name: Build orgs image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
         with:
           name: orgs
-          context: ${{ github.workspace }}
-          dockerfile: orgs/Dockerfile
+          context: ${{ github.workspace }}/orgs
           image: "${{ env.REGISTRY }}/orgs:${{ env.TAG }}"
 
       - name: Build rag-ingest image
@@ -131,14 +118,12 @@ jobs:
           name: rag-ingest
           context: ${{ github.workspace }}/rag-ingest
           image: "${{ env.REGISTRY }}/rag-ingest:${{ env.TAG }}"
-          timeout: 600
 
       - name: Build video image
         uses: kindling-sh/kindling/.github/actions/kindling-build@main
         with:
           name: video
-          context: ${{ github.workspace }}
-          dockerfile: video/Dockerfile
+          context: ${{ github.workspace }}/video
           image: "${{ env.REGISTRY }}/video:${{ env.TAG }}"
 
       # -- Deploy in dependency order --
