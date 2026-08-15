@@ -367,18 +367,9 @@ const TerminalInner = ({ terminalText, embedded = false }) => {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${wsProtocol}//${window.location.host}/compute/terminal/${userId}`;
     
-    // Create WebSocket
-    try {
-      wsRef.current = new WebSocket(wsUrl, [], {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'X-User-ID': userId,
-          'X-Namespace': namespace
-        }
-      });
-    } catch (error) {
-      wsRef.current = new WebSocket(wsUrl);
-    }
+    // Create WebSocket. Auth is handled via the first-frame handshake below
+    // (browsers cannot set custom headers on WebSocket upgrade requests).
+    wsRef.current = new WebSocket(wsUrl);
     
     wsRef.current.onopen = () => {
       console.log('WebSocket connected');

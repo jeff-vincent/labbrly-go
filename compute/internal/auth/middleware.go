@@ -43,11 +43,12 @@ func FromContext(ctx context.Context) (UserInfo, bool) {
 
 // Middleware validates incoming JWTs and injects UserInfo into the context.
 // Priority order for token source: cookie (lt_auth) → Authorization header → query param.
-// Public paths (/healthz, /metrics, POST /compute/create-namespace) bypass validation.
+// Public paths (/healthz, /metrics, POST /compute/create-namespace,
+// /compute/terminal/*) bypass validation.
 type Middleware struct {
-	jwks      *keyfunc.JWKS
-	hs256Key  []byte
-	debugJWT  bool
+	jwks     *keyfunc.JWKS
+	hs256Key []byte
+	debugJWT bool
 
 	once sync.Once
 }
@@ -82,6 +83,16 @@ func (m *Middleware) Handler(next http.Handler) http.Handler {
 			return
 		}
 		if r.URL.Path == "/compute/create-namespace" && r.Method == http.MethodPost {
+			next.ServeHTTP(w, r)
+			return
+		}
+		// The terminal WebSocket authenticates itself via its own first-frame
+		// handshake (see terminal.Handler.Terminal) — mirroring the original
+		// Python/FastAPI @app.websocket route, which HTTP middleware never
+		// wrapped in the first place. Browsers cannot set custom headers on
+		// WebSocket upgrade requests, so requiring header/cookie/query auth
+		// here would make the terminal permanently unreachable.
+		if strings.HasPrefix(r.URL.Path, "/compute/terminal/") {
 			next.ServeHTTP(w, r)
 			return
 		}
