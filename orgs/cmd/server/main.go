@@ -52,7 +52,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	authMW, err := auth.New(auth.WithPublicPaths("/orgs/org", "/orgs/check-availability"))
+	authMW, err := auth.New(auth.WithPublicPaths("POST /orgs/org", "POST /orgs/check-availability"))
 	if err != nil {
 		slog.Error("auth middleware init failed", "err", err)
 		os.Exit(1)

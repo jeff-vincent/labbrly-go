@@ -161,6 +161,16 @@ jobs:
                 secretKeyRef:
                   name: kindling-secret-auth0-domain
                   key: AUTH0_DOMAIN
+            - name: AUTH0_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-auth0-m2m-client-id
+                  key: AUTH0_CLIENT_ID
+            - name: AUTH0_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-auth0-m2m-client-secret
+                  key: AUTH0_CLIENT_SECRET
             - name: MONGO_HOST
               valueFrom:
                 secretKeyRef:
@@ -387,27 +397,9 @@ jobs:
               value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
             - name: LAB_THINGY_JWT_SECRET
               value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
-            - name: REACT_APP_AUTH0_DOMAIN
-              valueFrom:
-                secretKeyRef:
-                  name: kindling-secret-auth0-domain
-                  key: AUTH0_DOMAIN
-            - name: REACT_APP_AUTH0_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: kindling-secret-auth0-client-id
-                  key: AUTH0_CLIENT_ID
-            - name: REACT_APP_AUTH0_AUDIENCE
-              valueFrom:
-                secretKeyRef:
-                  name: kindling-secret-auth0-audience
-                  key: AUTH0_AUDIENCE
-          # NOTE: react-scripts inlines REACT_APP_* vars at `npm run build` time.
-          # Since this Dockerfile only COPYs the pre-built `build/` folder (Kaniko
-          # does not run the build), these values must also be present in the
-          # shell environment when `npm run build` runs locally, before the
-          # build/ artifact is committed — a runtime secretKeyRef alone will not
-          # change the already-compiled bundle.
+          # NOTE: REACT_APP_AUTH0_* vars are inlined into the JS bundle at
+          # `npm run build` time via frontend/.env (see frontend/.env.example),
+          # not at container runtime, so no secretKeyRefs are needed here.
           replicas: "1"
 
       - name: Deploy garbage-collection
@@ -600,6 +592,92 @@ jobs:
                   name: kindling-secret-mongo-password
                   key: MONGO_PASSWORD
           replicas: "1"
+
+      - name: Configure frontend API routing ingress
+        shell: bash
+        run: |
+          # The frontend calls the backend APIs via relative same-origin paths
+          # (e.g. fetch('/orgs/org'), fetch('/labs'), fetch('/auth/demo-token')),
+          # mirroring the production ingress in k8s/templates/frontend.yaml which
+          # routes those path prefixes to their respective backend services under
+          # a single host. kindling-deploy only wires up one host -> one service
+          # per DSE, so we add a supplementary Ingress here with the remaining
+          # path-based routes, targeting the same host (tunnel-aware) as the
+          # frontend's own ingress.
+          HOST=$(kubectl get ingress "${{ github.actor }}-frontend" -o jsonpath='{.spec.rules[0].host}')
+          echo "Routing backend API paths on host: ${HOST}"
+          cat <<EOF | kubectl apply -f -
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: ${{ github.actor }}-frontend-api-routes
+            labels:
+              app.kubernetes.io/part-of: labbrly
+              app.kubernetes.io/component: frontend-api-routes
+              apps.example.com/github-username: ${{ github.actor }}
+          spec:
+            ingressClassName: traefik
+            rules:
+              - host: ${HOST}
+                http:
+                  paths:
+                    - path: /auth
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: ${{ github.actor }}-auth
+                          port:
+                            number: 8000
+                    - path: /orgs
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: ${{ github.actor }}-orgs
+                          port:
+                            number: 8000
+                    - path: /labs
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: ${{ github.actor }}-labs
+                          port:
+                            number: 8000
+                    - path: /compute
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: ${{ github.actor }}-compute
+                          port:
+                            number: 8000
+                    - path: /builder
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: ${{ github.actor }}-builder
+                          port:
+                            number: 8000
+                    - path: /analytics
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: ${{ github.actor }}-analytics
+                          port:
+                            number: 8000
+                    - path: /llm
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: ${{ github.actor }}-llm-proxy
+                          port:
+                            number: 8000
+                    - path: /video
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: ${{ github.actor }}-video
+                          port:
+                            number: 8000
+          EOF
 
       - name: Summary
         run: |

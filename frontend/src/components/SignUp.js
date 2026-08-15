@@ -279,7 +279,11 @@ const SignUp = () => {
         throw new Error(data.message || 'Failed to create account');
       }
 
-      loginWithRedirect()
+      loginWithRedirect({
+        authorizationParams: {
+          organization: data.org_id,
+        },
+      })
       
     } catch (error) {
       setErrors({ submit: error.message });

@@ -53,7 +53,11 @@ type options struct {
 }
 
 // WithPublicPaths adds paths that bypass JWT validation in addition to the
-// built-in /healthz and /metrics.
+// built-in /healthz and /metrics. Entries may be a bare path (e.g. "/foo"),
+// which bypasses auth for that path regardless of HTTP method, or a
+// "METHOD /foo" entry (e.g. "POST /orgs/org"), which only bypasses auth for
+// that specific method — other methods on the same path still require a
+// valid token.
 func WithPublicPaths(paths ...string) Option {
 	return func(o *options) {
 		o.extraPublicPaths = append(o.extraPublicPaths, paths...)
@@ -62,10 +66,11 @@ func WithPublicPaths(paths ...string) Option {
 
 // Middleware validates incoming JWTs and injects UserInfo into the context.
 type Middleware struct {
-	jwks        *keyfunc.JWKS
-	hs256Key    []byte
-	publicPaths map[string]bool
-	once        sync.Once
+	jwks              *keyfunc.JWKS
+	hs256Key          []byte
+	publicPaths       map[string]bool
+	publicMethodPaths map[string]bool
+	once              sync.Once
 }
 
 // New returns a Middleware using the LAB_THINGY_JWT_SECRET environment variable
@@ -94,14 +99,20 @@ func New(opts ...Option) (*Middleware, error) {
 		"/healthz": true,
 		"/metrics": true,
 	}
+	publicMethodPaths := map[string]bool{}
 	for _, p := range o.extraPublicPaths {
-		public[p] = true
+		if method, path, ok := strings.Cut(p, " "); ok {
+			publicMethodPaths[strings.ToUpper(method)+" "+path] = true
+		} else {
+			public[p] = true
+		}
 	}
 
 	return &Middleware{
-		jwks:        jwks,
-		hs256Key:    []byte(secret),
-		publicPaths: public,
+		jwks:              jwks,
+		hs256Key:          []byte(secret),
+		publicPaths:       public,
+		publicMethodPaths: publicMethodPaths,
 	}, nil
 }
 
@@ -109,7 +120,7 @@ func New(opts ...Option) (*Middleware, error) {
 // injects UserInfo into the request context.
 func (m *Middleware) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if m.publicPaths[r.URL.Path] {
+		if m.publicPaths[r.URL.Path] || m.publicMethodPaths[r.Method+" "+r.URL.Path] {
 			next.ServeHTTP(w, r)
 			return
 		}
