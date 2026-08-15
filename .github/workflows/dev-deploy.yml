@@ -258,7 +258,7 @@ jobs:
           image: "${{ env.REGISTRY }}/billing:${{ env.TAG }}"
           port: "8000"
           ingress-host: "${{ github.actor }}-billing.localhost"
-          health-check-path: "/healthz"
+          health-check-type: "none"
           labels: |
             app.kubernetes.io/part-of: labbrly
             app.kubernetes.io/component: billing
