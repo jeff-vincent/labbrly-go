@@ -50,9 +50,15 @@ func inClusterOrKubeconfig() (*rest.Config, error) {
 	return clientcmd.BuildConfigFromFlags("", kubeconfig)
 }
 
-// CreateNamespace creates a namespace, ignoring AlreadyExists.
+// CreateNamespace creates a namespace, ignoring AlreadyExists. It labels the
+// namespace as compute-managed so other services (e.g. garbage-collection)
+// can safely identify org namespaces without having to blocklist every other
+// namespace in the cluster.
 func (c *Client) CreateNamespace(ctx context.Context, name string) error {
-	ns := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: name}}
+	ns := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{
+		Name:   name,
+		Labels: map[string]string{"app.kubernetes.io/managed-by": "labbrly-compute"},
+	}}
 	_, err := c.cs.CoreV1().Namespaces().Create(ctx, ns, metav1.CreateOptions{})
 	if kerrors.IsAlreadyExists(err) {
 		return nil

@@ -56,7 +56,9 @@ const CreateCustomLab = ({ jwt, orgId, orgData, presetEnvironments = [], isFreeA
     setLoading(true);
 
     const orgSuffix = (orgId || '').replace(/^org_/, '').toLowerCase();
-    const fullContainerImage = `registry.digitalocean.com/labthingy/labthingy-org-lab:${containerImage}-${orgSuffix}`;
+    // Matches the image builder's own destination format exactly (see
+    // builder/internal/builder/handlers.go: imageTag + cfg.Registry).
+    const fullContainerImage = `${process.env.REACT_APP_IMAGE_REGISTRY}/labthingy-org-lab:${containerImage}-${orgSuffix}`;
 
     const payload = {
       name: name,

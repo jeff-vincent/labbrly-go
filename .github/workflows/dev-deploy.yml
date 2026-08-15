@@ -138,6 +138,29 @@ jobs:
           context: ${{ github.workspace }}/video
           image: "${{ env.REGISTRY }}/video:${{ env.TAG }}"
 
+      # -- Build stock lab environment images (pulled on-demand by compute,
+      # not deployed as services) --
+      - name: Build python lab env image
+        uses: kindling-sh/kindling/.github/actions/kindling-build@main
+        with:
+          name: lab-env-python
+          context: ${{ github.workspace }}/envs/python
+          image: "${{ env.REGISTRY }}/lab-thingy-python:latest"
+
+      - name: Build node lab env image
+        uses: kindling-sh/kindling/.github/actions/kindling-build@main
+        with:
+          name: lab-env-node
+          context: ${{ github.workspace }}/envs/node
+          image: "${{ env.REGISTRY }}/lab-thingy-nodejs:latest"
+
+      - name: Build go lab env image
+        uses: kindling-sh/kindling/.github/actions/kindling-build@main
+        with:
+          name: lab-env-go
+          context: ${{ github.workspace }}/envs/go
+          image: "${{ env.REGISTRY }}/lab-thingy-golang:latest"
+
       # -- Deploy in dependency order --
       - name: Deploy auth
         uses: kindling-sh/kindling/.github/actions/kindling-deploy@main

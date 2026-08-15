@@ -45,11 +45,14 @@ const CreateLab = () => {
     fetchOrgData();
   }, [orgId, jwt]);
 
-  const presetEnvironments = useMemo(() => ([
-    { id: 'python', label: 'Python', containerImage: 'registry.digitalocean.com/labthingy/lab-thingy-python:latest', scriptName: 'main.py', executionCommand: 'python' },
-    { id: 'nodejs', label: 'Node.js', containerImage: 'registry.digitalocean.com/labthingy/lab-thingy-nodejs:latest', scriptName: 'app.js', executionCommand: 'node' },
-    { id: 'golang', label: 'Golang', containerImage: 'registry.digitalocean.com/labthingy/lab-thingy-golang:latest', scriptName: 'main.go', executionCommand: 'go run' },
-  ]), []);
+  const presetEnvironments = useMemo(() => {
+    const registry = process.env.REACT_APP_IMAGE_REGISTRY;
+    return [
+      { id: 'python', label: 'Python', containerImage: `${registry}/lab-thingy-python:latest`, scriptName: 'main.py', executionCommand: 'python' },
+      { id: 'nodejs', label: 'Node.js', containerImage: `${registry}/lab-thingy-nodejs:latest`, scriptName: 'app.js', executionCommand: 'node' },
+      { id: 'golang', label: 'Golang', containerImage: `${registry}/lab-thingy-golang:latest`, scriptName: 'main.go', executionCommand: 'go run' },
+    ];
+  }, []);
 
   const isFreeAccount = orgData?.account_type === 'free';
 

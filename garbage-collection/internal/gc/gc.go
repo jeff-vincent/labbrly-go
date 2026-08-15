@@ -16,12 +16,24 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-// systemNamespaces are excluded from GC scanning.
+// systemNamespaces are excluded from GC scanning, as defense-in-depth on top
+// of the orgNamespaceLabelSelector below.
 var systemNamespaces = map[string]bool{
-	"default":       true,
-	"cert-manager":  true,
-	"ingress-nginx": true,
+	"default":            true,
+	"cert-manager":       true,
+	"ingress-nginx":      true,
+	"kindling-system":    true,
+	"traefik":            true,
+	"local-path-storage": true,
 }
+
+// orgNamespaceLabelSelector matches only namespaces created by the compute
+// service for org environments (see compute/internal/k8s/client.go
+// CreateNamespace). GC must NOT enumerate every namespace in the cluster and
+// delete any pod lacking a Redis TTL key — that would (and did) delete
+// unrelated infra pods in namespaces like kindling-system/traefik that have
+// no Redis-tracked pods at all.
+const orgNamespaceLabelSelector = "app.kubernetes.io/managed-by=labbrly-compute"
 
 // analyticsWorkerURL is the endpoint for triggering analytics processing on pod cleanup.
 const analyticsWorkerURL = "http://analytics-worker:8000/analytics-worker/process"
@@ -54,7 +66,9 @@ func Run(ctx context.Context, k8s *kubernetes.Clientset, rdb *goredis.Client) {
 func runCycle(ctx context.Context, k8s *kubernetes.Clientset, rdb *goredis.Client) error {
 	slog.Info("starting GC cycle")
 
-	nsList, err := k8s.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
+	nsList, err := k8s.CoreV1().Namespaces().List(ctx, metav1.ListOptions{
+		LabelSelector: orgNamespaceLabelSelector,
+	})
 	if err != nil {
 		return err
 	}
