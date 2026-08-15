@@ -16,7 +16,7 @@ const CreateLab = () => {
   useEffect(() => {
     const fetchOrgId = async () => {
       try {
-        const token = await getAccessTokenSilently({ audience: 'urn:labthingy:api' });
+        const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE });
         setJwt(token);
         const decoded = jwtDecode(token);
         setOrgId(decoded['org_id']);

@@ -26,7 +26,7 @@ const ImageBuildStatus = ({ job_name, onClose, imageName }) => {
     const fetchStatus = async () => {
       try {
         setLoading(prev => (status ? prev : true));
-        const token = await getAccessTokenSilently({ audience: 'urn:labthingy:api' });
+        const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE });
         const res = await fetch(`/builder/status/${encodeURIComponent(job_name)}`, {
           headers: { Authorization: `Bearer ${token}` },
           signal: abort.signal,
@@ -81,7 +81,7 @@ const ImageBuildStatus = ({ job_name, onClose, imageName }) => {
       reportedRef.current = true;
       (async () => {
         try {
-          const token = await getAccessTokenSilently({ audience: 'urn:labthingy:api' });
+          const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE });
 
           await fetch('/orgs/image', {
             method: 'POST',

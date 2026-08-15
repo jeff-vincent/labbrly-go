@@ -13,7 +13,7 @@ const MyLabs = () => {
   useEffect(() => {
     const init = async () => {
       try {
-        const token = await getAccessTokenSilently({ audience: 'urn:labthingy:api' });
+        const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE });
         setJwt(token);
         const res = await fetch('/labs', {
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -39,7 +39,7 @@ const MyLabs = () => {
     setError(null);
     try {
       // 1) Auth0 token for org lookup
-      const token = jwt || (await getAccessTokenSilently({ audience: 'urn:labthingy:api' }));
+      const token = jwt || (await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE }));
 
       // 2) Fetch org to obtain API key
       const orgRes = await fetch('/orgs/org', {

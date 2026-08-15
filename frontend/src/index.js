@@ -8,11 +8,11 @@ const root = createRoot(document.getElementById('root'));
 
 root.render(
 <Auth0Provider
-    domain="dev-w5iil6bapqnf2nai.us.auth0.com"
-    clientId="j4dapddu0Azkecbwqv0buDB3ssPNb4ko"
+    domain={process.env.REACT_APP_AUTH0_DOMAIN}
+    clientId={process.env.REACT_APP_AUTH0_CLIENT_ID}
     authorizationParams={{
       redirect_uri: window.location.origin,
-      audience: "urn:labthingy:api",
+      audience: process.env.REACT_APP_AUTH0_AUDIENCE,
     }}
   >
     <App />

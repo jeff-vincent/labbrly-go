@@ -117,7 +117,7 @@ const RoutesWithRedirect = () => {
     const redirectToOrg = async () => {
       try {
         const token = await getAccessTokenSilently({
-          audience: 'urn:labthingy:api',
+          audience: process.env.REACT_APP_AUTH0_AUDIENCE,
         });
         const decoded = jwtDecode(token);
         console.log('Decoded Auth0 JWT:', decoded);

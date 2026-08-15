@@ -64,7 +64,7 @@ export default function LLMProviders({ llmConfigs }) {
     setError('');
     setSuccess('');
     try {
-      const token = await getAccessTokenSilently({ audience: 'urn:labthingy:api' });
+      const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE });
       // Build payload as { llm_model, llm_configs } based on selected provider
       const { selected_llm_provider } = form;
 

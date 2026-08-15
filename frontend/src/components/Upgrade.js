@@ -118,7 +118,7 @@ const CheckoutForm = ({ selectedPlan }) => {
 
     try {
       // Get Auth0 JWT for authenticated calls
-      const token = await getAccessTokenSilently({ audience: 'urn:labthingy:api' });
+      const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE });
 
       // Create subscription on backend (server must use Stripe secret key)
       const subscribeRes = await fetch(SUBSCRIBE_ENDPOINT, {

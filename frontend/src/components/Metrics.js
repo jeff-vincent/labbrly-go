@@ -61,7 +61,7 @@ export default function Metrics() {
     (async () => {
       try {
         setLoading(true);
-        const token = await getAccessTokenSilently({ audience: 'urn:labthingy:api' });
+        const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE });
         const res = await fetch(`/analytics/events`, {
           method: "GET",
           headers: {

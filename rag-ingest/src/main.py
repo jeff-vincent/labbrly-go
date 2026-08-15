@@ -1,6 +1,8 @@
 import os
 import logging
 import uuid
+import base64
+import hashlib
 from fastapi import FastAPI, HTTPException, Request
 from typing import Dict, Any
 from cryptography.fernet import Fernet
@@ -29,8 +31,11 @@ MONGO_HOST = os.environ.get('MONGO_HOST')
 MONGO_USER = os.environ.get('MONGO_USER')
 MONGO_PASSWORD = os.environ.get('MONGO_PASSWORD')
 
-# Load encryption key from env var
-ENCRYPTION_KEY = os.environ["APP_SECRET_KEY"].encode()
+# Derive a valid Fernet key (32 url-safe base64-encoded bytes) from
+# APP_SECRET_KEY, which is a shared hex string and not Fernet-compatible as-is.
+ENCRYPTION_KEY = base64.urlsafe_b64encode(
+    hashlib.sha256(os.environ["APP_SECRET_KEY"].encode()).digest()
+)
 cipher = Fernet(ENCRYPTION_KEY)
 
 @app.on_event('startup')

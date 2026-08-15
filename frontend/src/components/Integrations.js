@@ -190,7 +190,7 @@ export default function Integrations({ initial }) {
     setError('');
     setSuccess('');
     try {
-      const token = await getAccessTokenSilently({ audience: 'urn:labthingy:api' });
+      const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE });
       // Only send values that are non-empty and not masked placeholders
       const payload = { integrations: {} };
       Object.entries(form).forEach(([k, v]) => {

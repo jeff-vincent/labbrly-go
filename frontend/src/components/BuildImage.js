@@ -45,7 +45,7 @@ const BuildImage = () => {
   useEffect(() => {
     const fetchToken = async () => {
       try {
-        const token = await getAccessTokenSilently({ audience: 'urn:labthingy:api' });
+        const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE });
         setJwt(token);
         const decoded = jwtDecode(token);
         setOrgId(decoded['org_id']);
@@ -502,7 +502,7 @@ ENTRYPOINT ["dumb-init", "--"]
   const handleSubmit = async () => {
     try {
       setBuildJobName(null); // reset before new submission
-      const token = jwt || await getAccessTokenSilently({ audience: 'urn:labthingy:api' });
+      const token = jwt || await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE });
       const fd = new FormData();
       // Edited Dockerfile
       const dockerfileBlob = new Blob([editorValue], { type: 'text/plain' });

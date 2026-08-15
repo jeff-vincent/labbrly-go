@@ -40,7 +40,7 @@ const DeleteLab = () => {
     const fetchJwt = async () => {
       try {
         const token = await getAccessTokenSilently({
-          audience: 'urn:labthingy:api',
+          audience: process.env.REACT_APP_AUTH0_AUDIENCE,
         });
         setJwt(token);
       } catch (error) {

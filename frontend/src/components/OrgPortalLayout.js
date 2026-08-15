@@ -141,7 +141,7 @@ const OrgPortalLayout = () => {
     const fetchOrgData = async () => {
       try {
         const token = await getAccessTokenSilently({
-          audience: 'urn:labthingy:api',
+          audience: process.env.REACT_APP_AUTH0_AUDIENCE,
         });
         
         const response = await fetch('/orgs/org', {
@@ -211,7 +211,7 @@ const OrgPortalLayout = () => {
 
     try {
       const token = await getAccessTokenSilently({
-        audience: 'urn:labthingy:api',
+        audience: process.env.REACT_APP_AUTH0_AUDIENCE,
       });
       
       await fetch('/orgs/org', {
@@ -235,7 +235,7 @@ const OrgPortalLayout = () => {
 
     try {
       const token = await getAccessTokenSilently({
-        audience: 'urn:labthingy:api',
+        audience: process.env.REACT_APP_AUTH0_AUDIENCE,
       });
       
       await fetch('/orgs/org', {

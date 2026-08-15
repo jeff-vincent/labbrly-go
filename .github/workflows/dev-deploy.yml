@@ -358,7 +358,7 @@ jobs:
           image: "${{ env.REGISTRY }}/docs:${{ env.TAG }}"
           port: "80"
           ingress-host: "${{ github.actor }}-docs.localhost"
-          health-check-path: "/"
+          health-check-path: "/docs/"
           labels: |
             app.kubernetes.io/part-of: labbrly
             app.kubernetes.io/component: docs
@@ -387,6 +387,27 @@ jobs:
               value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
             - name: LAB_THINGY_JWT_SECRET
               value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+            - name: REACT_APP_AUTH0_DOMAIN
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-auth0-domain
+                  key: AUTH0_DOMAIN
+            - name: REACT_APP_AUTH0_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-auth0-client-id
+                  key: AUTH0_CLIENT_ID
+            - name: REACT_APP_AUTH0_AUDIENCE
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-auth0-audience
+                  key: AUTH0_AUDIENCE
+          # NOTE: react-scripts inlines REACT_APP_* vars at `npm run build` time.
+          # Since this Dockerfile only COPYs the pre-built `build/` folder (Kaniko
+          # does not run the build), these values must also be present in the
+          # shell environment when `npm run build` runs locally, before the
+          # build/ artifact is committed — a runtime secretKeyRef alone will not
+          # change the already-compiled bundle.
           replicas: "1"
 
       - name: Deploy garbage-collection
