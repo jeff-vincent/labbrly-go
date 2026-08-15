@@ -9,7 +9,9 @@
 /coverage
 
 # production
-/build
+# NOTE: /build is intentionally tracked — the Dockerfile copies this
+# pre-built artifact directly (kindling/Kaniko does not run `npm run build`),
+# so it must be committed for `kindling deploy` to work.
 
 # misc
 .DS_Store
