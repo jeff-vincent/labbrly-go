@@ -100,7 +100,7 @@ const NewLab = ({ labID, isOpen, onClose }) => {
             <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg dark:bg-cp-panel-alt dark:border-cp-border">
               <p className="text-green-800 text-sm mb-2 dark:text-cp-green">Lab created successfully!</p>
               <a 
-                href={`https://subnode1.xyz/?token=${labToken}`}
+                href={`${window.location.origin}/?token=${labToken}`}
                 className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 dark:bg-cp-blue dark:hover:brightness-110"
                 target="_blank"
                 rel="noopener noreferrer"

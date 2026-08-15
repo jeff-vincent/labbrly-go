@@ -217,7 +217,7 @@ const Homepage = () => {
       const res = await fetch('/auth/demo-token', { method: 'GET' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const { access_token } = await res.json();
-      const url = `https://subnode1.xyz/?token=${encodeURIComponent(access_token)}`;
+      const url = `${window.location.origin}/?token=${encodeURIComponent(access_token)}`;
       window.location.href = url;
     } catch (err) {
       console.error('Error fetching demo token:', err);

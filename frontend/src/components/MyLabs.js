@@ -65,7 +65,7 @@ const MyLabs = () => {
       if (!accessToken) throw new Error('No access token returned');
 
       // 4) Open new tab to environment with token in URL (matches NewLab flow)
-      const url = `https://subnode1.xyz/?token=${encodeURIComponent(accessToken)}`;
+      const url = `${window.location.origin}/?token=${encodeURIComponent(accessToken)}`;
       window.open(url, '_blank', 'noopener,noreferrer');
     } catch (e) {
       console.error('MyLabs: launch error', e);

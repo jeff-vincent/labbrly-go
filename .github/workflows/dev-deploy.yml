@@ -604,6 +604,15 @@ jobs:
           # per DSE, so we add a supplementary Ingress here with the remaining
           # path-based routes, targeting the same host (tunnel-aware) as the
           # frontend's own ingress.
+          #
+          # The runner itself has no direct kubectl access — cluster access is
+          # only available to the build-agent sidecar via the /builds file-drop
+          # protocol (same mechanism kindling-deploy uses for DSE applies and
+          # rollout waits), so we drop a script + trigger file for it here.
+          BASENAME="/builds/${{ github.actor }}-frontend-routes"
+          cat > "${BASENAME}.sh" <<'SCRIPT'
+          #!/bin/bash
+          set -e
           HOST=$(kubectl get ingress "${{ github.actor }}-frontend" -o jsonpath='{.spec.rules[0].host}')
           echo "Routing backend API paths on host: ${HOST}"
           cat <<EOF | kubectl apply -f -
@@ -678,6 +687,25 @@ jobs:
                           port:
                             number: 8000
           EOF
+          SCRIPT
+          chmod +x "${BASENAME}.sh"
+          touch "${BASENAME}.kubectl"
+          WAITED=0
+          while [ ! -f "${BASENAME}.kubectl-done" ]; do
+            sleep 1
+            WAITED=$((WAITED+1))
+            if [ ${WAITED} -ge 60 ]; then
+              echo "❌ Timed out waiting for sidecar to configure frontend routing ingress"
+              exit 1
+            fi
+          done
+          cat "${BASENAME}.kubectl-log" 2>/dev/null || true
+          EXIT_CODE=$(cat "${BASENAME}.kubectl-exitcode" 2>/dev/null || echo "1")
+          if [ "${EXIT_CODE}" != "0" ]; then
+            echo "❌ Failed to configure frontend API routing ingress"
+            exit 1
+          fi
+          echo "✅ frontend API routing ingress configured"
 
       - name: Summary
         run: |
