@@ -92,11 +92,18 @@ func main() {
 		addr = "8000"
 	}
 	srv := &http.Server{
-		Addr:         ":" + addr,
-		Handler:      r,
-		ReadTimeout:  60 * time.Second,
-		WriteTimeout: 0, // streaming and WebSocket; no write deadline
-		IdleTimeout:  120 * time.Second,
+		Addr:    ":" + addr,
+		Handler: r,
+		// ReadHeaderTimeout protects against slow-header attacks on regular
+		// REST endpoints. ReadTimeout must stay 0: it sets an ABSOLUTE
+		// deadline on the raw connection at request start, and gorilla's
+		// websocket.Upgrade() hijacks that connection without clearing it —
+		// a nonzero ReadTimeout here silently kills every terminal WebSocket
+		// exactly that many seconds after connecting, active or not.
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       0,
+		WriteTimeout:      0, // streaming and WebSocket; no write deadline
+		IdleTimeout:       120 * time.Second,
 	}
 
 	go func() {
