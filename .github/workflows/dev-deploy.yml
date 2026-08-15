@@ -161,6 +161,21 @@ jobs:
                 secretKeyRef:
                   name: kindling-secret-auth0-domain
                   key: AUTH0_DOMAIN
+            - name: MONGO_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-host
+                  key: MONGO_HOST
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-user
+                  key: MONGO_USER
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-password
+                  key: MONGO_PASSWORD
           # NOTE: OAuth detected — run 'kindling expose' for a public HTTPS URL
           replicas: "1"
 
@@ -181,6 +196,21 @@ jobs:
               value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
             - name: LAB_THINGY_JWT_SECRET
               value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+            - name: MONGO_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-host
+                  key: MONGO_HOST
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-user
+                  key: MONGO_USER
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-password
+                  key: MONGO_PASSWORD
           dependencies: |
             - type: redis
           replicas: "1"
@@ -202,6 +232,21 @@ jobs:
               value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
             - name: LAB_THINGY_JWT_SECRET
               value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+            - name: MONGO_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-host
+                  key: MONGO_HOST
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-user
+                  key: MONGO_USER
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-password
+                  key: MONGO_PASSWORD
           dependencies: |
             - type: redis
           replicas: "1"
@@ -223,6 +268,26 @@ jobs:
               value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
             - name: LAB_THINGY_JWT_SECRET
               value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+            - name: STRIPE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-stripe-api-key
+                  key: STRIPE_API_KEY
+            - name: MONGO_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-host
+                  key: MONGO_HOST
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-user
+                  key: MONGO_USER
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-password
+                  key: MONGO_PASSWORD
           dependencies: |
             - type: redis
           replicas: "1"
@@ -362,6 +427,21 @@ jobs:
               value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
             - name: LAB_THINGY_JWT_SECRET
               value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+            - name: MONGO_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-host
+                  key: MONGO_HOST
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-user
+                  key: MONGO_USER
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-password
+                  key: MONGO_PASSWORD
           replicas: "1"
 
       - name: Deploy llm-proxy
@@ -381,6 +461,21 @@ jobs:
               value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
             - name: LAB_THINGY_JWT_SECRET
               value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+            - name: MONGO_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-host
+                  key: MONGO_HOST
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-user
+                  key: MONGO_USER
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-password
+                  key: MONGO_PASSWORD
           replicas: "1"
 
       - name: Deploy orgs
@@ -400,6 +495,21 @@ jobs:
               value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
             - name: LAB_THINGY_JWT_SECRET
               value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+            - name: MONGO_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-host
+                  key: MONGO_HOST
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-user
+                  key: MONGO_USER
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-password
+                  key: MONGO_PASSWORD
           replicas: "1"
 
       - name: Deploy rag-ingest
@@ -419,6 +529,21 @@ jobs:
               value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
             - name: LAB_THINGY_JWT_SECRET
               value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+            - name: MONGO_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-host
+                  key: MONGO_HOST
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-user
+                  key: MONGO_USER
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-password
+                  key: MONGO_PASSWORD
           replicas: "1"
 
       - name: Deploy video
@@ -438,6 +563,21 @@ jobs:
               value: "f8d3c7a25e4b9126d7b8935a1e6c4d2f9b8a7c5e1f3d2b4a5c6e7f8a9d0b1c2d"
             - name: LAB_THINGY_JWT_SECRET
               value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
+            - name: MONGO_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-host
+                  key: MONGO_HOST
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-user
+                  key: MONGO_USER
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kindling-secret-mongo-password
+                  key: MONGO_PASSWORD
           replicas: "1"
 
       - name: Summary
