@@ -625,8 +625,23 @@ jobs:
           # routes those path prefixes to their respective backend services under
           # a single host. kindling-deploy only wires up one host -> one service
           # per DSE, so we add a supplementary Ingress here with the remaining
-          # path-based routes, targeting the same host (tunnel-aware) as the
-          # frontend's own ingress.
+          # path-based routes.
+          #
+          # NOTE: this rule intentionally omits `host:` (matches ANY host) rather
+          # than binding to the frontend's current ingress host. The frontend's
+          # own DSE-managed ingress host is swapped dynamically by kindling's
+          # tunnel-override logic whenever `kindling expose` regenerates a new
+          # Cloudflare quick-tunnel URL (e.g. after the machine sleeps and the
+          # tunnel drops) — but this supplementary Ingress is only applied once,
+          # at CI time, and never revisited. Binding it to a specific host here
+          # would silently go stale on the next tunnel rotation: Traefik would
+          # stop matching these paths on the new host and requests would fall
+          # through to the frontend's static `/` catch-all instead of reaching
+          # these backends. Omitting `host` makes these routes host-agnostic and
+          # immune to that churn. (Caveat: on a cluster shared by multiple
+          # actors, a host-less rule here would match any actor's frontend host
+          # too — acceptable for this single-actor local dev cluster; see
+          # KINDLING-TODO.md #5.)
           #
           # The runner itself has no direct kubectl access — cluster access is
           # only available to the build-agent sidecar via the /builds file-drop
@@ -636,8 +651,6 @@ jobs:
           cat > "${BASENAME}.sh" <<'SCRIPT'
           #!/bin/bash
           set -e
-          HOST=$(kubectl get ingress "${{ github.actor }}-frontend" -o jsonpath='{.spec.rules[0].host}')
-          echo "Routing backend API paths on host: ${HOST}"
           cat <<EOF | kubectl apply -f -
           apiVersion: networking.k8s.io/v1
           kind: Ingress
@@ -650,8 +663,7 @@ jobs:
           spec:
             ingressClassName: traefik
             rules:
-              - host: ${HOST}
-                http:
+              - http:
                   paths:
                     - path: /auth
                       pathType: Prefix
