@@ -246,6 +246,7 @@ jobs:
                   key: MONGO_PASSWORD
           dependencies: |
             - type: redis
+              shared: true
           replicas: "1"
 
       - name: Deploy analytics-worker
@@ -282,6 +283,7 @@ jobs:
                   key: MONGO_PASSWORD
           dependencies: |
             - type: redis
+              shared: true
           replicas: "1"
 
       - name: Deploy billing
@@ -323,6 +325,7 @@ jobs:
                   key: MONGO_PASSWORD
           dependencies: |
             - type: redis
+              shared: true
           replicas: "1"
 
       - name: Deploy builder
@@ -382,6 +385,7 @@ jobs:
               value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
           dependencies: |
             - type: redis
+              shared: true
           replicas: "1"
 
       - name: Deploy docs
@@ -423,6 +427,37 @@ jobs:
           # NOTE: REACT_APP_AUTH0_* vars are inlined into the JS bundle at
           # `npm run build` time via frontend/.env (see frontend/.env.example),
           # not at container runtime, so no secretKeyRefs are needed here.
+          # The frontend calls backend APIs via relative same-origin paths
+          # (fetch('/orgs/org'), fetch('/labs'), fetch('/auth/demo-token'),
+          # etc.), mirroring the production ingress in k8s/templates/frontend.yaml.
+          # These routes are merged into this DSE's own managed ingress, so
+          # they automatically follow tunnel-host rotation and don't need any
+          # separate unmanaged Ingress object (see KINDLING-TODO.md #5).
+          routes: |
+            - path: /auth
+              service: ${{ github.actor }}-auth
+              port: 8000
+            - path: /orgs
+              service: ${{ github.actor }}-orgs
+              port: 8000
+            - path: /labs
+              service: ${{ github.actor }}-labs
+              port: 8000
+            - path: /compute
+              service: ${{ github.actor }}-compute
+              port: 8000
+            - path: /builder
+              service: ${{ github.actor }}-builder
+              port: 8000
+            - path: /analytics
+              service: ${{ github.actor }}-analytics
+              port: 8000
+            - path: /llm
+              service: ${{ github.actor }}-llm-proxy
+              port: 8000
+            - path: /video
+              service: ${{ github.actor }}-video
+              port: 8000
           replicas: "1"
 
       - name: Deploy garbage-collection
@@ -444,6 +479,7 @@ jobs:
               value: "6e4d3c2b1a7988f5e3d2c1b0a9f8e7d6c5b4a392817161514131211100f0e0d"
           dependencies: |
             - type: redis
+              shared: true
           replicas: "1"
 
       - name: Deploy labs
@@ -615,132 +651,6 @@ jobs:
                   name: kindling-secret-mongo-password
                   key: MONGO_PASSWORD
           replicas: "1"
-
-      - name: Configure frontend API routing ingress
-        shell: bash
-        run: |
-          # The frontend calls the backend APIs via relative same-origin paths
-          # (e.g. fetch('/orgs/org'), fetch('/labs'), fetch('/auth/demo-token')),
-          # mirroring the production ingress in k8s/templates/frontend.yaml which
-          # routes those path prefixes to their respective backend services under
-          # a single host. kindling-deploy only wires up one host -> one service
-          # per DSE, so we add a supplementary Ingress here with the remaining
-          # path-based routes.
-          #
-          # NOTE: this rule intentionally omits `host:` (matches ANY host) rather
-          # than binding to the frontend's current ingress host. The frontend's
-          # own DSE-managed ingress host is swapped dynamically by kindling's
-          # tunnel-override logic whenever `kindling expose` regenerates a new
-          # Cloudflare quick-tunnel URL (e.g. after the machine sleeps and the
-          # tunnel drops) — but this supplementary Ingress is only applied once,
-          # at CI time, and never revisited. Binding it to a specific host here
-          # would silently go stale on the next tunnel rotation: Traefik would
-          # stop matching these paths on the new host and requests would fall
-          # through to the frontend's static `/` catch-all instead of reaching
-          # these backends. Omitting `host` makes these routes host-agnostic and
-          # immune to that churn. (Caveat: on a cluster shared by multiple
-          # actors, a host-less rule here would match any actor's frontend host
-          # too — acceptable for this single-actor local dev cluster; see
-          # KINDLING-TODO.md #5.)
-          #
-          # The runner itself has no direct kubectl access — cluster access is
-          # only available to the build-agent sidecar via the /builds file-drop
-          # protocol (same mechanism kindling-deploy uses for DSE applies and
-          # rollout waits), so we drop a script + trigger file for it here.
-          BASENAME="/builds/${{ github.actor }}-frontend-routes"
-          cat > "${BASENAME}.sh" <<'SCRIPT'
-          #!/bin/bash
-          set -e
-          cat <<EOF | kubectl apply -f -
-          apiVersion: networking.k8s.io/v1
-          kind: Ingress
-          metadata:
-            name: ${{ github.actor }}-frontend-api-routes
-            labels:
-              app.kubernetes.io/part-of: labbrly
-              app.kubernetes.io/component: frontend-api-routes
-              apps.example.com/github-username: ${{ github.actor }}
-          spec:
-            ingressClassName: traefik
-            rules:
-              - http:
-                  paths:
-                    - path: /auth
-                      pathType: Prefix
-                      backend:
-                        service:
-                          name: ${{ github.actor }}-auth
-                          port:
-                            number: 8000
-                    - path: /orgs
-                      pathType: Prefix
-                      backend:
-                        service:
-                          name: ${{ github.actor }}-orgs
-                          port:
-                            number: 8000
-                    - path: /labs
-                      pathType: Prefix
-                      backend:
-                        service:
-                          name: ${{ github.actor }}-labs
-                          port:
-                            number: 8000
-                    - path: /compute
-                      pathType: Prefix
-                      backend:
-                        service:
-                          name: ${{ github.actor }}-compute
-                          port:
-                            number: 8000
-                    - path: /builder
-                      pathType: Prefix
-                      backend:
-                        service:
-                          name: ${{ github.actor }}-builder
-                          port:
-                            number: 8000
-                    - path: /analytics
-                      pathType: Prefix
-                      backend:
-                        service:
-                          name: ${{ github.actor }}-analytics
-                          port:
-                            number: 8000
-                    - path: /llm
-                      pathType: Prefix
-                      backend:
-                        service:
-                          name: ${{ github.actor }}-llm-proxy
-                          port:
-                            number: 8000
-                    - path: /video
-                      pathType: Prefix
-                      backend:
-                        service:
-                          name: ${{ github.actor }}-video
-                          port:
-                            number: 8000
-          EOF
-          SCRIPT
-          chmod +x "${BASENAME}.sh"
-          touch "${BASENAME}.kubectl"
-          WAITED=0
-          while [ ! -f "${BASENAME}.kubectl-done" ]; do
-            sleep 1
-            WAITED=$((WAITED+1))
-            if [ ${WAITED} -ge 60 ]; then
-              echo "❌ Timed out waiting for sidecar to configure frontend routing ingress"
-              exit 1
-            fi
-          done
-          cat "${BASENAME}.kubectl-log" 2>/dev/null || true
-          EXIT_CODE=$(cat "${BASENAME}.kubectl-exitcode" 2>/dev/null || echo "1")
-          if [ "${EXIT_CODE}" != "0" ]; then
-            echo "❌ Failed to configure frontend API routing ingress"
-            exit 1
-          fi
-          echo "✅ frontend API routing ingress configured"
 
       - name: Summary
         run: |
