@@ -63,6 +63,17 @@ func NewK8sClient() (*kubernetes.Clientset, error) {
 	return kubernetes.NewForConfig(cfg)
 }
 
+// buildContextHostPath is where build contexts live on the node's local
+// disk. Both the builder Deployment and every Kaniko Job mount this same
+// host directory, mirroring how CI builds already work on this single-node
+// cluster (the runner's build-agent sidecar and its Kaniko pods share
+// node-local storage rather than a PersistentVolumeClaim). Nothing here
+// needs to survive past the build, so plain node-local scratch space is
+// sufficient — no PVC/StorageClass/shared-volume plumbing required.
+const buildContextHostPath = "/var/lib/labbrly-builder-context"
+
+var hostPathDirectoryOrCreate = corev1.HostPathDirectoryOrCreate
+
 // CreateKanikoJob submits a Kaniko batch job to Kubernetes and returns the job name.
 func CreateKanikoJob(k8s *kubernetes.Clientset, cfg Config, jobID, imageDestination string) (string, error) {
 	jobName := "kaniko-build-" + jobID[:8]
@@ -82,8 +93,7 @@ func CreateKanikoJob(k8s *kubernetes.Clientset, cfg Config, jobID, imageDestinat
 					Labels: map[string]string{"job-name": jobName},
 				},
 				Spec: corev1.PodSpec{
-					RestartPolicy:      corev1.RestartPolicyNever,
-					ServiceAccountName: "builder-sa",
+					RestartPolicy: corev1.RestartPolicyNever,
 					Containers: []corev1.Container{
 						{
 							Name:  "kaniko",
@@ -96,16 +106,17 @@ func CreateKanikoJob(k8s *kubernetes.Clientset, cfg Config, jobID, imageDestinat
 								"--verbosity=info",
 							},
 							VolumeMounts: []corev1.VolumeMount{
-								{Name: "build-pvc", MountPath: "/context"},
+								{Name: "build-context", MountPath: "/context"},
 							},
 						},
 					},
 					Volumes: []corev1.Volume{
 						{
-							Name: "build-pvc",
+							Name: "build-context",
 							VolumeSource: corev1.VolumeSource{
-								PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-									ClaimName: "build-pvc",
+								HostPath: &corev1.HostPathVolumeSource{
+									Path: buildContextHostPath,
+									Type: &hostPathDirectoryOrCreate,
 								},
 							},
 						},
