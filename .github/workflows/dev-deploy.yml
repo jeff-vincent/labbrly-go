@@ -168,7 +168,6 @@ jobs:
           name: "${{ github.actor }}-auth"
           image: "${{ env.REGISTRY }}/auth:${{ env.TAG }}"
           port: "8000"
-          ingress-host: "${{ github.actor }}-auth.localhost"
           health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
@@ -218,7 +217,6 @@ jobs:
           name: "${{ github.actor }}-analytics"
           image: "${{ env.REGISTRY }}/analytics:${{ env.TAG }}"
           port: "8000"
-          ingress-host: "${{ github.actor }}-analytics.localhost"
           health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
@@ -255,7 +253,6 @@ jobs:
           name: "${{ github.actor }}-analytics-worker"
           image: "${{ env.REGISTRY }}/analytics-worker:${{ env.TAG }}"
           port: "8000"
-          ingress-host: "${{ github.actor }}-analytics-worker.localhost"
           health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
@@ -292,7 +289,6 @@ jobs:
           name: "${{ github.actor }}-billing"
           image: "${{ env.REGISTRY }}/billing:${{ env.TAG }}"
           port: "8000"
-          ingress-host: "${{ github.actor }}-billing.localhost"
           health-check-type: "none"
           labels: |
             app.kubernetes.io/part-of: labbrly
@@ -334,7 +330,6 @@ jobs:
           name: "${{ github.actor }}-builder"
           image: "${{ env.REGISTRY }}/builder:${{ env.TAG }}"
           port: "8000"
-          ingress-host: "${{ github.actor }}-builder.localhost"
           health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
@@ -353,7 +348,6 @@ jobs:
           name: "${{ github.actor }}-cdn"
           image: "${{ env.REGISTRY }}/cdn:${{ env.TAG }}"
           port: "80"
-          ingress-host: "${{ github.actor }}-cdn.localhost"
           health-check-path: "/"
           labels: |
             app.kubernetes.io/part-of: labbrly
@@ -372,7 +366,6 @@ jobs:
           name: "${{ github.actor }}-compute"
           image: "${{ env.REGISTRY }}/compute:${{ env.TAG }}"
           port: "8000"
-          ingress-host: "${{ github.actor }}-compute.localhost"
           health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
@@ -394,7 +387,6 @@ jobs:
           name: "${{ github.actor }}-docs"
           image: "${{ env.REGISTRY }}/docs:${{ env.TAG }}"
           port: "80"
-          ingress-host: "${{ github.actor }}-docs.localhost"
           health-check-path: "/docs/"
           labels: |
             app.kubernetes.io/part-of: labbrly
@@ -466,7 +458,6 @@ jobs:
           name: "${{ github.actor }}-garbage-collection"
           image: "${{ env.REGISTRY }}/garbage-collection:${{ env.TAG }}"
           port: "8000"
-          ingress-host: "${{ github.actor }}-garbage-collection.localhost"
           health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
@@ -488,7 +479,6 @@ jobs:
           name: "${{ github.actor }}-labs"
           image: "${{ env.REGISTRY }}/labs:${{ env.TAG }}"
           port: "8000"
-          ingress-host: "${{ github.actor }}-labs.localhost"
           health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
@@ -522,7 +512,6 @@ jobs:
           name: "${{ github.actor }}-llm-proxy"
           image: "${{ env.REGISTRY }}/llm-proxy:${{ env.TAG }}"
           port: "8000"
-          ingress-host: "${{ github.actor }}-llm-proxy.localhost"
           health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
@@ -556,7 +545,6 @@ jobs:
           name: "${{ github.actor }}-orgs"
           image: "${{ env.REGISTRY }}/orgs:${{ env.TAG }}"
           port: "8000"
-          ingress-host: "${{ github.actor }}-orgs.localhost"
           health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
@@ -590,7 +578,6 @@ jobs:
           name: "${{ github.actor }}-rag-ingest"
           image: "${{ env.REGISTRY }}/rag-ingest:${{ env.TAG }}"
           port: "8000"
-          ingress-host: "${{ github.actor }}-rag-ingest.localhost"
           health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
@@ -624,7 +611,6 @@ jobs:
           name: "${{ github.actor }}-video"
           image: "${{ env.REGISTRY }}/video:${{ env.TAG }}"
           port: "8000"
-          ingress-host: "${{ github.actor }}-video.localhost"
           health-check-path: "/healthz"
           labels: |
             app.kubernetes.io/part-of: labbrly
