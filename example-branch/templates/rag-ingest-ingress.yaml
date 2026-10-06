@@ -1,0 +1,37 @@
+{{- if .Values.rag_ingest.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-rag-ingest
+  labels:
+    app: rag-ingest
+    {{- include "example-branch.labels" . | nindent 4 }}
+  {{- with .Values.rag_ingest.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.rag_ingest.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.rag_ingest.ingress.ingressClassName }}
+  {{- end }}
+  rules:
+  - host: {{ .Values.rag_ingest.ingress.host }}
+    http:
+      paths:
+      - path: {{ .Values.rag_ingest.ingress.path }}
+        pathType: {{ .Values.rag_ingest.ingress.pathType }}
+        backend:
+          service:
+            name: {{ .Release.Name }}-rag-ingest
+            port:
+              number: {{ .Values.rag_ingest.port }}
+      {{- range .Values.rag_ingest.ingress.routes }}
+      - path: {{ .path }}
+        pathType: {{ .pathType }}
+        backend:
+          service:
+            name: {{ .service }}
+            port:
+              number: {{ .port }}
+      {{- end }}
+{{- end }}

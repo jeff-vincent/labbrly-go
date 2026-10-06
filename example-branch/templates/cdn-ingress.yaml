@@ -1,0 +1,37 @@
+{{- if .Values.cdn.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-cdn
+  labels:
+    app: cdn
+    {{- include "example-branch.labels" . | nindent 4 }}
+  {{- with .Values.cdn.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.cdn.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.cdn.ingress.ingressClassName }}
+  {{- end }}
+  rules:
+  - host: {{ .Values.cdn.ingress.host }}
+    http:
+      paths:
+      - path: {{ .Values.cdn.ingress.path }}
+        pathType: {{ .Values.cdn.ingress.pathType }}
+        backend:
+          service:
+            name: {{ .Release.Name }}-cdn
+            port:
+              number: {{ .Values.cdn.port }}
+      {{- range .Values.cdn.ingress.routes }}
+      - path: {{ .path }}
+        pathType: {{ .pathType }}
+        backend:
+          service:
+            name: {{ .service }}
+            port:
+              number: {{ .port }}
+      {{- end }}
+{{- end }}

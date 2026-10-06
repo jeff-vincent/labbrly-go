@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-frontend
+  labels:
+    app: frontend
+    {{- include "example-branch.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.frontend.replicas }}
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      {{- if .Values.frontend.compute }}
+      nodeSelector:
+        kindling.dev/compute: {{ .Values.frontend.compute | quote }}
+      tolerations:
+      - key: kindling.dev/compute
+        operator: Equal
+        value: {{ .Values.frontend.compute | quote }}
+        effect: NoSchedule
+      {{- end }}
+      containers:
+      - name: frontend
+        image: {{ .Values.frontend.image }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.frontend.port }}
+        env:
+        {{- if .Values.frontend.env.APP_SECRET_KEY }}
+        - name: APP_SECRET_KEY
+          value: {{ .Values.frontend.env.APP_SECRET_KEY | quote }}
+        {{- end }}
+        {{- if .Values.frontend.env.LAB_THINGY_JWT_SECRET }}
+        - name: LAB_THINGY_JWT_SECRET
+          value: {{ .Values.frontend.env.LAB_THINGY_JWT_SECRET | quote }}
+        {{- end }}

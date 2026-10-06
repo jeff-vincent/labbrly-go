@@ -1,0 +1,37 @@
+{{- if .Values.docs.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-docs
+  labels:
+    app: docs
+    {{- include "example-branch.labels" . | nindent 4 }}
+  {{- with .Values.docs.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.docs.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.docs.ingress.ingressClassName }}
+  {{- end }}
+  rules:
+  - host: {{ .Values.docs.ingress.host }}
+    http:
+      paths:
+      - path: {{ .Values.docs.ingress.path }}
+        pathType: {{ .Values.docs.ingress.pathType }}
+        backend:
+          service:
+            name: {{ .Release.Name }}-docs
+            port:
+              number: {{ .Values.docs.port }}
+      {{- range .Values.docs.ingress.routes }}
+      - path: {{ .path }}
+        pathType: {{ .pathType }}
+        backend:
+          service:
+            name: {{ .service }}
+            port:
+              number: {{ .port }}
+      {{- end }}
+{{- end }}

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-analytics-worker
+  labels:
+    app: analytics-worker
+    {{- include "example-branch.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: analytics-worker
+  ports:
+  - port: {{ .Values.analytics_worker.port }}
+    targetPort: {{ .Values.analytics_worker.port }}
+    protocol: TCP

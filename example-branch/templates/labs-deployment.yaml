@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-labs
+  labels:
+    app: labs
+    {{- include "example-branch.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.labs.replicas }}
+  selector:
+    matchLabels:
+      app: labs
+  template:
+    metadata:
+      labels:
+        app: labs
+    spec:
+      {{- if .Values.labs.compute }}
+      nodeSelector:
+        kindling.dev/compute: {{ .Values.labs.compute | quote }}
+      tolerations:
+      - key: kindling.dev/compute
+        operator: Equal
+        value: {{ .Values.labs.compute | quote }}
+        effect: NoSchedule
+      {{- end }}
+      containers:
+      - name: labs
+        image: {{ .Values.labs.image }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.labs.port }}
+        env:
+        {{- if .Values.labs.env.APP_SECRET_KEY }}
+        - name: APP_SECRET_KEY
+          value: {{ .Values.labs.env.APP_SECRET_KEY | quote }}
+        {{- end }}
+        {{- if .Values.labs.env.LAB_THINGY_JWT_SECRET }}
+        - name: LAB_THINGY_JWT_SECRET
+          value: {{ .Values.labs.env.LAB_THINGY_JWT_SECRET | quote }}
+        {{- end }}
+        - name: MONGO_HOST
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-labs-secrets
+              key: MONGO_HOST
+        - name: MONGO_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-labs-secrets
+              key: MONGO_USER
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-labs-secrets
+              key: MONGO_PASSWORD

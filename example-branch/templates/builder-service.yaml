@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-builder
+  labels:
+    app: builder
+    {{- include "example-branch.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: builder
+  ports:
+  - port: {{ .Values.builder.port }}
+    targetPort: {{ .Values.builder.port }}
+    protocol: TCP

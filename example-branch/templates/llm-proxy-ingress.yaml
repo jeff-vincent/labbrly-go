@@ -1,0 +1,37 @@
+{{- if .Values.llm_proxy.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-llm-proxy
+  labels:
+    app: llm-proxy
+    {{- include "example-branch.labels" . | nindent 4 }}
+  {{- with .Values.llm_proxy.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.llm_proxy.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.llm_proxy.ingress.ingressClassName }}
+  {{- end }}
+  rules:
+  - host: {{ .Values.llm_proxy.ingress.host }}
+    http:
+      paths:
+      - path: {{ .Values.llm_proxy.ingress.path }}
+        pathType: {{ .Values.llm_proxy.ingress.pathType }}
+        backend:
+          service:
+            name: {{ .Release.Name }}-llm-proxy
+            port:
+              number: {{ .Values.llm_proxy.port }}
+      {{- range .Values.llm_proxy.ingress.routes }}
+      - path: {{ .path }}
+        pathType: {{ .pathType }}
+        backend:
+          service:
+            name: {{ .service }}
+            port:
+              number: {{ .port }}
+      {{- end }}
+{{- end }}

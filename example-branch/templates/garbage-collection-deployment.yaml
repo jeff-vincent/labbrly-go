@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-garbage-collection
+  labels:
+    app: garbage-collection
+    {{- include "example-branch.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.garbage_collection.replicas }}
+  selector:
+    matchLabels:
+      app: garbage-collection
+  template:
+    metadata:
+      labels:
+        app: garbage-collection
+    spec:
+      {{- if .Values.garbage_collection.compute }}
+      nodeSelector:
+        kindling.dev/compute: {{ .Values.garbage_collection.compute | quote }}
+      tolerations:
+      - key: kindling.dev/compute
+        operator: Equal
+        value: {{ .Values.garbage_collection.compute | quote }}
+        effect: NoSchedule
+      {{- end }}
+      containers:
+      - name: garbage-collection
+        image: {{ .Values.garbage_collection.image }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.garbage_collection.port }}
+        env:
+        {{- if .Values.garbage_collection.env.REDIS_URL }}
+        - name: REDIS_URL
+          value: {{ .Values.garbage_collection.env.REDIS_URL | quote }}
+        {{- end }}
+        {{- if .Values.garbage_collection.env.APP_SECRET_KEY }}
+        - name: APP_SECRET_KEY
+          value: {{ .Values.garbage_collection.env.APP_SECRET_KEY | quote }}
+        {{- end }}
+        {{- if .Values.garbage_collection.env.LAB_THINGY_JWT_SECRET }}
+        - name: LAB_THINGY_JWT_SECRET
+          value: {{ .Values.garbage_collection.env.LAB_THINGY_JWT_SECRET | quote }}
+        {{- end }}

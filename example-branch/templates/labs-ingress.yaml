@@ -1,0 +1,37 @@
+{{- if .Values.labs.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-labs
+  labels:
+    app: labs
+    {{- include "example-branch.labels" . | nindent 4 }}
+  {{- with .Values.labs.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.labs.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.labs.ingress.ingressClassName }}
+  {{- end }}
+  rules:
+  - host: {{ .Values.labs.ingress.host }}
+    http:
+      paths:
+      - path: {{ .Values.labs.ingress.path }}
+        pathType: {{ .Values.labs.ingress.pathType }}
+        backend:
+          service:
+            name: {{ .Release.Name }}-labs
+            port:
+              number: {{ .Values.labs.port }}
+      {{- range .Values.labs.ingress.routes }}
+      - path: {{ .path }}
+        pathType: {{ .pathType }}
+        backend:
+          service:
+            name: {{ .service }}
+            port:
+              number: {{ .port }}
+      {{- end }}
+{{- end }}

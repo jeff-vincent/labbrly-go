@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-billing
+  labels:
+    app: billing
+    {{- include "example-branch.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.billing.replicas }}
+  selector:
+    matchLabels:
+      app: billing
+  template:
+    metadata:
+      labels:
+        app: billing
+    spec:
+      {{- if .Values.billing.compute }}
+      nodeSelector:
+        kindling.dev/compute: {{ .Values.billing.compute | quote }}
+      tolerations:
+      - key: kindling.dev/compute
+        operator: Equal
+        value: {{ .Values.billing.compute | quote }}
+        effect: NoSchedule
+      {{- end }}
+      containers:
+      - name: billing
+        image: {{ .Values.billing.image }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.billing.port }}
+        env:
+        {{- if .Values.billing.env.REDIS_URL }}
+        - name: REDIS_URL
+          value: {{ .Values.billing.env.REDIS_URL | quote }}
+        {{- end }}
+        {{- if .Values.billing.env.APP_SECRET_KEY }}
+        - name: APP_SECRET_KEY
+          value: {{ .Values.billing.env.APP_SECRET_KEY | quote }}
+        {{- end }}
+        {{- if .Values.billing.env.LAB_THINGY_JWT_SECRET }}
+        - name: LAB_THINGY_JWT_SECRET
+          value: {{ .Values.billing.env.LAB_THINGY_JWT_SECRET | quote }}
+        {{- end }}
+        - name: STRIPE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-billing-secrets
+              key: STRIPE_API_KEY
+        - name: MONGO_HOST
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-billing-secrets
+              key: MONGO_HOST
+        - name: MONGO_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-billing-secrets
+              key: MONGO_USER
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-billing-secrets
+              key: MONGO_PASSWORD

@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-analytics-worker
+  labels:
+    app: analytics-worker
+    {{- include "example-branch.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.analytics_worker.replicas }}
+  selector:
+    matchLabels:
+      app: analytics-worker
+  template:
+    metadata:
+      labels:
+        app: analytics-worker
+    spec:
+      {{- if .Values.analytics_worker.compute }}
+      nodeSelector:
+        kindling.dev/compute: {{ .Values.analytics_worker.compute | quote }}
+      tolerations:
+      - key: kindling.dev/compute
+        operator: Equal
+        value: {{ .Values.analytics_worker.compute | quote }}
+        effect: NoSchedule
+      {{- end }}
+      containers:
+      - name: analytics-worker
+        image: {{ .Values.analytics_worker.image }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.analytics_worker.port }}
+        env:
+        {{- if .Values.analytics_worker.env.REDIS_URL }}
+        - name: REDIS_URL
+          value: {{ .Values.analytics_worker.env.REDIS_URL | quote }}
+        {{- end }}
+        {{- if .Values.analytics_worker.env.APP_SECRET_KEY }}
+        - name: APP_SECRET_KEY
+          value: {{ .Values.analytics_worker.env.APP_SECRET_KEY | quote }}
+        {{- end }}
+        {{- if .Values.analytics_worker.env.LAB_THINGY_JWT_SECRET }}
+        - name: LAB_THINGY_JWT_SECRET
+          value: {{ .Values.analytics_worker.env.LAB_THINGY_JWT_SECRET | quote }}
+        {{- end }}
+        - name: MONGO_HOST
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-analytics-worker-secrets
+              key: MONGO_HOST
+        - name: MONGO_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-analytics-worker-secrets
+              key: MONGO_USER
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-analytics-worker-secrets
+              key: MONGO_PASSWORD

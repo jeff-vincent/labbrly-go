@@ -1,0 +1,37 @@
+{{- if .Values.analytics_worker.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-analytics-worker
+  labels:
+    app: analytics-worker
+    {{- include "example-branch.labels" . | nindent 4 }}
+  {{- with .Values.analytics_worker.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.analytics_worker.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.analytics_worker.ingress.ingressClassName }}
+  {{- end }}
+  rules:
+  - host: {{ .Values.analytics_worker.ingress.host }}
+    http:
+      paths:
+      - path: {{ .Values.analytics_worker.ingress.path }}
+        pathType: {{ .Values.analytics_worker.ingress.pathType }}
+        backend:
+          service:
+            name: {{ .Release.Name }}-analytics-worker
+            port:
+              number: {{ .Values.analytics_worker.port }}
+      {{- range .Values.analytics_worker.ingress.routes }}
+      - path: {{ .path }}
+        pathType: {{ .pathType }}
+        backend:
+          service:
+            name: {{ .service }}
+            port:
+              number: {{ .port }}
+      {{- end }}
+{{- end }}

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-builder
+  labels:
+    app: builder
+    {{- include "example-branch.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.builder.replicas }}
+  selector:
+    matchLabels:
+      app: builder
+  template:
+    metadata:
+      labels:
+        app: builder
+    spec:
+      {{- if .Values.builder.compute }}
+      nodeSelector:
+        kindling.dev/compute: {{ .Values.builder.compute | quote }}
+      tolerations:
+      - key: kindling.dev/compute
+        operator: Equal
+        value: {{ .Values.builder.compute | quote }}
+        effect: NoSchedule
+      {{- end }}
+      containers:
+      - name: builder
+        image: {{ .Values.builder.image }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.builder.port }}
+        env:
+        {{- if .Values.builder.env.APP_SECRET_KEY }}
+        - name: APP_SECRET_KEY
+          value: {{ .Values.builder.env.APP_SECRET_KEY | quote }}
+        {{- end }}
+        {{- if .Values.builder.env.LAB_THINGY_JWT_SECRET }}
+        - name: LAB_THINGY_JWT_SECRET
+          value: {{ .Values.builder.env.LAB_THINGY_JWT_SECRET | quote }}
+        {{- end }}

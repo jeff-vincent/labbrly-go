@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-video
+  labels:
+    app: video
+    {{- include "example-branch.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.video.replicas }}
+  selector:
+    matchLabels:
+      app: video
+  template:
+    metadata:
+      labels:
+        app: video
+    spec:
+      {{- if .Values.video.compute }}
+      nodeSelector:
+        kindling.dev/compute: {{ .Values.video.compute | quote }}
+      tolerations:
+      - key: kindling.dev/compute
+        operator: Equal
+        value: {{ .Values.video.compute | quote }}
+        effect: NoSchedule
+      {{- end }}
+      containers:
+      - name: video
+        image: {{ .Values.video.image }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.video.port }}
+        env:
+        {{- if .Values.video.env.APP_SECRET_KEY }}
+        - name: APP_SECRET_KEY
+          value: {{ .Values.video.env.APP_SECRET_KEY | quote }}
+        {{- end }}
+        {{- if .Values.video.env.LAB_THINGY_JWT_SECRET }}
+        - name: LAB_THINGY_JWT_SECRET
+          value: {{ .Values.video.env.LAB_THINGY_JWT_SECRET | quote }}
+        {{- end }}
+        - name: MONGO_HOST
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-video-secrets
+              key: MONGO_HOST
+        - name: MONGO_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-video-secrets
+              key: MONGO_USER
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-video-secrets
+              key: MONGO_PASSWORD

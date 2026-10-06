@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-rag-ingest
+  labels:
+    app: rag-ingest
+    {{- include "example-branch.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.rag_ingest.replicas }}
+  selector:
+    matchLabels:
+      app: rag-ingest
+  template:
+    metadata:
+      labels:
+        app: rag-ingest
+    spec:
+      {{- if .Values.rag_ingest.compute }}
+      nodeSelector:
+        kindling.dev/compute: {{ .Values.rag_ingest.compute | quote }}
+      tolerations:
+      - key: kindling.dev/compute
+        operator: Equal
+        value: {{ .Values.rag_ingest.compute | quote }}
+        effect: NoSchedule
+      {{- end }}
+      containers:
+      - name: rag-ingest
+        image: {{ .Values.rag_ingest.image }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.rag_ingest.port }}
+        env:
+        {{- if .Values.rag_ingest.env.APP_SECRET_KEY }}
+        - name: APP_SECRET_KEY
+          value: {{ .Values.rag_ingest.env.APP_SECRET_KEY | quote }}
+        {{- end }}
+        {{- if .Values.rag_ingest.env.LAB_THINGY_JWT_SECRET }}
+        - name: LAB_THINGY_JWT_SECRET
+          value: {{ .Values.rag_ingest.env.LAB_THINGY_JWT_SECRET | quote }}
+        {{- end }}
+        - name: MONGO_HOST
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-rag-ingest-secrets
+              key: MONGO_HOST
+        - name: MONGO_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-rag-ingest-secrets
+              key: MONGO_USER
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-rag-ingest-secrets
+              key: MONGO_PASSWORD

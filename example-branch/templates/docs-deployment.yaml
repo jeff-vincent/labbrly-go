@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-docs
+  labels:
+    app: docs
+    {{- include "example-branch.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.docs.replicas }}
+  selector:
+    matchLabels:
+      app: docs
+  template:
+    metadata:
+      labels:
+        app: docs
+    spec:
+      {{- if .Values.docs.compute }}
+      nodeSelector:
+        kindling.dev/compute: {{ .Values.docs.compute | quote }}
+      tolerations:
+      - key: kindling.dev/compute
+        operator: Equal
+        value: {{ .Values.docs.compute | quote }}
+        effect: NoSchedule
+      {{- end }}
+      containers:
+      - name: docs
+        image: {{ .Values.docs.image }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.docs.port }}
+        env:
+        {{- if .Values.docs.env.APP_SECRET_KEY }}
+        - name: APP_SECRET_KEY
+          value: {{ .Values.docs.env.APP_SECRET_KEY | quote }}
+        {{- end }}
+        {{- if .Values.docs.env.LAB_THINGY_JWT_SECRET }}
+        - name: LAB_THINGY_JWT_SECRET
+          value: {{ .Values.docs.env.LAB_THINGY_JWT_SECRET | quote }}
+        {{- end }}

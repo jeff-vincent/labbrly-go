@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-llm-proxy
+  labels:
+    app: llm-proxy
+    {{- include "example-branch.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.llm_proxy.replicas }}
+  selector:
+    matchLabels:
+      app: llm-proxy
+  template:
+    metadata:
+      labels:
+        app: llm-proxy
+    spec:
+      {{- if .Values.llm_proxy.compute }}
+      nodeSelector:
+        kindling.dev/compute: {{ .Values.llm_proxy.compute | quote }}
+      tolerations:
+      - key: kindling.dev/compute
+        operator: Equal
+        value: {{ .Values.llm_proxy.compute | quote }}
+        effect: NoSchedule
+      {{- end }}
+      containers:
+      - name: llm-proxy
+        image: {{ .Values.llm_proxy.image }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.llm_proxy.port }}
+        env:
+        {{- if .Values.llm_proxy.env.APP_SECRET_KEY }}
+        - name: APP_SECRET_KEY
+          value: {{ .Values.llm_proxy.env.APP_SECRET_KEY | quote }}
+        {{- end }}
+        {{- if .Values.llm_proxy.env.LAB_THINGY_JWT_SECRET }}
+        - name: LAB_THINGY_JWT_SECRET
+          value: {{ .Values.llm_proxy.env.LAB_THINGY_JWT_SECRET | quote }}
+        {{- end }}
+        - name: MONGO_HOST
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-llm-proxy-secrets
+              key: MONGO_HOST
+        - name: MONGO_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-llm-proxy-secrets
+              key: MONGO_USER
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-llm-proxy-secrets
+              key: MONGO_PASSWORD

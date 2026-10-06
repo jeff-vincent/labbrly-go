@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-compute
+  labels:
+    app: compute
+    {{- include "example-branch.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: compute
+  ports:
+  - port: {{ .Values.compute.port }}
+    targetPort: {{ .Values.compute.port }}
+    protocol: TCP

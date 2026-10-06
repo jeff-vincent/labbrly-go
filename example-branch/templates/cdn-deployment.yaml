@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-cdn
+  labels:
+    app: cdn
+    {{- include "example-branch.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.cdn.replicas }}
+  selector:
+    matchLabels:
+      app: cdn
+  template:
+    metadata:
+      labels:
+        app: cdn
+    spec:
+      {{- if .Values.cdn.compute }}
+      nodeSelector:
+        kindling.dev/compute: {{ .Values.cdn.compute | quote }}
+      tolerations:
+      - key: kindling.dev/compute
+        operator: Equal
+        value: {{ .Values.cdn.compute | quote }}
+        effect: NoSchedule
+      {{- end }}
+      containers:
+      - name: cdn
+        image: {{ .Values.cdn.image }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.cdn.port }}
+        env:
+        {{- if .Values.cdn.env.APP_SECRET_KEY }}
+        - name: APP_SECRET_KEY
+          value: {{ .Values.cdn.env.APP_SECRET_KEY | quote }}
+        {{- end }}
+        {{- if .Values.cdn.env.LAB_THINGY_JWT_SECRET }}
+        - name: LAB_THINGY_JWT_SECRET
+          value: {{ .Values.cdn.env.LAB_THINGY_JWT_SECRET | quote }}
+        {{- end }}

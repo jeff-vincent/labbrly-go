@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-analytics
+  labels:
+    app: analytics
+    {{- include "example-branch.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: analytics
+  ports:
+  - port: {{ .Values.analytics.port }}
+    targetPort: {{ .Values.analytics.port }}
+    protocol: TCP
